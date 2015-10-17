@@ -1,22 +1,74 @@
 package fent.de.tum.in.gesturesid;
 
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MeasurementActivityFragment extends Fragment {
 
-    public MeasurementActivityFragment() {
+    OnPatternReceivedListener callback;
+
+
+    public static MeasurementActivityFragment newInstance() {
+        return new MeasurementActivityFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_measurement, container, false);
+        View view = inflater.inflate(R.layout.fragment_measurement, container, false);
+        EditText patternPassword = (EditText) view.findViewById(R.id.patternPassword);
+        patternPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+            SensorDataBuilder builder = null;
+            SensorManager manager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+            Sensor sensor = (manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
+            SensorEventListener listener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    if (builder == null) {
+                        builder = new SensorDataBuilder(event.values);
+                        return;
+                    }
+                    builder.append(event.values);
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                    // NOP for now
+                }
+            };
+
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    builder.clear();
+                    manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                    Log.d("Test", "EditText  got focus");
+                    return;
+                }
+                manager.unregisterListener(listener);
+                callback.OnPatternReceived(builder.toSensorData());
+                Log.d("Test", "EditText lost focus");
+            }
+        });
+        return view;
+    }
+
+    public void setOnPatternReceivedListener(OnPatternReceivedListener listener) {
+        this.callback = listener;
     }
 }

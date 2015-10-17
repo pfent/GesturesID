@@ -13,10 +13,12 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MeasurementActivity extends AppCompatActivity {
+public class MeasurementActivity extends AppCompatActivity implements OnPatternReceivedListener {
 
+    private SensorData sensorData;
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
+    private MeasurementActivityFragment inputFragment = MeasurementActivityFragment.newInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,13 +27,16 @@ public class MeasurementActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        viewPager =  (ViewPager) findViewById(R.id.vPager);
+        inputFragment.setOnPatternReceivedListener(this);
+        viewPager = (ViewPager) findViewById(R.id.vPager);
         pagerAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return new MeasurementActivityFragment();
+                        return inputFragment;
+                    case 2:
+                        return inputFragment;
                     default:
                         return null;
                 }
@@ -74,5 +79,10 @@ public class MeasurementActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void OnPatternReceived(SensorData data) {
+        sensorData = data;
     }
 }
