@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -33,7 +32,7 @@ public class MeasurementActivityFragment extends Fragment {
         EditText patternPassword = (EditText) view.findViewById(R.id.patternPassword);
         patternPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
-            SensorDataBuilder builder = null;
+            SensorDataBuilder builder;
             SensorManager manager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
             Sensor sensor = (manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
             SensorEventListener listener = new SensorEventListener() {
@@ -55,7 +54,7 @@ public class MeasurementActivityFragment extends Fragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    builder.clear();
+                    builder = null;
                     manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
                     Log.d("Test", "EditText  got focus");
                     return;

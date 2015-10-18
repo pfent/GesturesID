@@ -19,6 +19,7 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
     private MeasurementActivityFragment inputFragment = MeasurementActivityFragment.newInstance();
+    private SensorDisplayFragment displayFragment = SensorDisplayFragment.newInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +36,8 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
                 switch (position) {
                     case 0:
                         return inputFragment;
-                    case 2:
-                        return inputFragment;
+                    case 1:
+                        return displayFragment;
                     default:
                         return null;
                 }
@@ -44,7 +45,7 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
 
             @Override
             public int getCount() {
-                return 1;
+                return 2;
             }
         };
         viewPager.setAdapter(pagerAdapter);
@@ -53,8 +54,7 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                viewPager.setCurrentItem(1);
             }
         });
     }
@@ -84,5 +84,6 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
     @Override
     public void OnPatternReceived(SensorData data) {
         sensorData = data;
+        displayFragment.displayData(data);
     }
 }

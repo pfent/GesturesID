@@ -53,6 +53,10 @@ public class SensorData {
         }
     }
 
+    public int getDimension() {
+        return data.length;
+    }
+
     public void displayData(GraphView[] views) {
         if (views.length != data.length) {
             throw new IllegalArgumentException();
