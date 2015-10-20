@@ -10,8 +10,8 @@ public class SensorData {
 
     public SensorData(float[][] data) {
         this.data = data;
+        exponentiallySmoothData(data, 0.2f);
         normalizeData(data);
-        exponentiallySmoothData(data, 0.75f);
     }
 
     /**
@@ -46,7 +46,7 @@ public class SensorData {
 
             for (int i = 0; i < dataRowSize; i++) {
                 final float value = dataRow[i];
-                final float newValue = oldValue + alpha * (value + oldValue);
+                final float newValue = oldValue + alpha * (value - oldValue);
                 oldValue = newValue;
                 dataRow[i] = newValue;
             }
@@ -65,18 +65,36 @@ public class SensorData {
         final int vectorSize = data.length;
 
         for (int i = 0; i < vectorSize; i++) {
-            final float[] dataRow = data[i];
-            final DataPoint[] dataPointRow = new DataPoint[dataRow.length];
-            final int dataRowSize = data[i].length;
-
-            for (int j = 0; j < dataRowSize; j++) {
-                dataPointRow[j] = new DataPoint(j, dataRow[j]);
-            }
-
-            // now set this dataPointRow to the appropriate View
-            final GraphView view = views[i];
-            view.removeAllSeries();
-            view.addSeries(new LineGraphSeries<>(dataPointRow));
+            displayData(views[i], i);
         }
+    }
+
+    public void displayData(GraphView view, int index) {
+        if (index >= data.length) {
+            throw new IllegalArgumentException();
+        }
+
+        final float[] dataRow = data[index];
+        final DataPoint[] dataPointRow = new DataPoint[dataRow.length];
+        final int dataRowSize = data[index].length;
+
+        for (int j = 0; j < dataRowSize; j++) {
+            dataPointRow[j] = new DataPoint(j, dataRow[j]);
+        }
+
+        // now set this dataPointRow to the appropriate View
+        view.removeAllSeries();
+        view.addSeries(new LineGraphSeries<>(dataPointRow));
+    }
+
+    public String toCSV() {
+        StringBuilder builder = new StringBuilder();
+        for (float[] line : data) {
+            for (float f : line) {
+                builder.append(f).append(';');
+            }
+            builder.append('\n');
+        }
+        return builder.toString();
     }
 }

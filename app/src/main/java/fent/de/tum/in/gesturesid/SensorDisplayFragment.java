@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.support.v4.app.Fragment;
 
@@ -13,8 +14,10 @@ import com.jjoe64.graphview.GraphView;
 
 public class SensorDisplayFragment extends Fragment {
 
-    GraphView[] graphs;
+    SensorData data = new SensorData(new float[0][0]);
+    GraphView[] graphs = new GraphView[0];
     ListView listView;
+    BaseAdapter adapter;
 
     public static SensorDisplayFragment newInstance() {
         return new SensorDisplayFragment();
@@ -26,16 +29,45 @@ public class SensorDisplayFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_sensor_display, container, false);
         listView = (ListView) view.findViewById(R.id.sensorDisplayLayout);
-        graphs = new GraphView[3];
-        for (int i = 1; i < 3; i++) {
-            graphs[i] = new GraphView(getActivity());
-            listView.addView(graphs[i]);
-        }
+        adapter = new BaseAdapter() {
+
+            @Override
+            public int getCount() {
+                return data.getDimension();
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return null;
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                GraphView gView;
+                if (convertView == null) {
+                    gView = (GraphView) LayoutInflater.from(getActivity()).inflate(R.layout.sensor_display_view, parent, false);
+                } else {
+                    gView = (GraphView) convertView;
+                }
+
+                data.displayData(gView, position);
+                return gView;
+            }
+        };
+
+        listView.setAdapter(adapter);
+
         return view;
     }
 
     public void displayData(SensorData data) {
-        data.displayData(graphs);
+        this.data = data;
+        adapter.notifyDataSetChanged();
     }
 
 }
