@@ -4,6 +4,8 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.Arrays;
+
 public class SensorData {
 
     private final float[][] data;
@@ -55,16 +57,16 @@ public class SensorData {
 
     private static void movingAverageSmoothData(float[][] dataSet, int windowSize) {
         float[] window = new float[windowSize];
-        for(final float[] dataRow : dataSet) {
+        for (final float[] dataRow : dataSet) {
             float sum = 0;
             // initially fill the window. Smoothing gradually gets better
-            for(int i = 0; i < windowSize; i++) {
+            for (int i = 0; i < windowSize; i++) {
                 window[i] = dataRow[i];
                 sum += dataRow[i];
                 dataRow[i] = sum / i;
             }
             // calculate the average of the last (windowSize) data points
-            for(int i = windowSize; i < dataRow.length; i++) {
+            for (int i = windowSize; i < dataRow.length; i++) {
                 final int wrappedPosition = i % windowSize;
                 sum -= window[wrappedPosition];
                 window[wrappedPosition] = dataRow[i];
@@ -72,6 +74,59 @@ public class SensorData {
                 dataRow[i] = sum / windowSize;
             }
         }
+    }
+
+    private static float dTWDistance(float[] first, float[] second) {
+        final int dTWMatrixHeight = first.length + 1;
+        final int dTWMatrixWidth = second.length + 1;
+        float[][] dTWMatrix = new float[dTWMatrixHeight][dTWMatrixWidth];
+
+        // Fill the matrix' outermost values with starting values
+        for (int i = 1; i < dTWMatrixHeight; i++) {
+            dTWMatrix[i][0] = Float.POSITIVE_INFINITY;
+        }
+        for (int i = 1; i < dTWMatrixWidth; i++) {
+            dTWMatrix[0][i] = Float.POSITIVE_INFINITY;
+        }
+        dTWMatrix[0][0] = 0;
+
+        for (int i = 1; i < dTWMatrixHeight; i++) {
+            for (int j = 1; j < dTWMatrixWidth; j++) {
+                final float cost = Math.abs(first[i - 1] - second[j - 1]); // Euclidean distance
+                dTWMatrix[i][j] = cost +
+                        Math.min(dTWMatrix[i - 1][j], // insert
+                                Math.min(dTWMatrix[i][j - 1], // delete
+                                        dTWMatrix[i - 1][j - 1])); // match
+            }
+        }
+
+        return dTWMatrix[dTWMatrixHeight][dTWMatrixWidth];
+    }
+
+    private static float dTWDistance(float[] first, float[] second, int desiredWindowSize) {
+        final int dTWMatrixHeight = first.length + 1;
+        final int dTWMatrixWidth = second.length + 1;
+        float[][] dTWMatrix = new float[dTWMatrixHeight][dTWMatrixWidth];
+
+        // Window size must at last be the array's size difference (+1)
+        final int windowSize = Math.max(desiredWindowSize, Math.abs(dTWMatrixHeight - dTWMatrixWidth));
+
+        for (float[] dTWRow : dTWMatrix) {
+            Arrays.fill(dTWRow, Float.POSITIVE_INFINITY);
+        }
+        dTWMatrix[0][0] = 0;
+
+        for (int i = 1; i < dTWMatrixHeight; i++) {
+            for (int j = Math.max(1, i - windowSize); i < (Math.min(dTWMatrixWidth, i + windowSize)); i++) {
+                final float cost = Math.abs(first[i - 1] - second[j - 1]); // Euclidean distance
+                dTWMatrix[i][j] = cost +
+                        Math.min(dTWMatrix[i - 1][j], // insert
+                                Math.min(dTWMatrix[i][j - 1], // delete
+                                        dTWMatrix[i - 1][j - 1])); // match
+            }
+        }
+
+        return dTWMatrix[dTWMatrixHeight][dTWMatrixWidth];
     }
 
     public int getDimension() {
