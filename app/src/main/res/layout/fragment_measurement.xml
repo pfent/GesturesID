@@ -13,10 +13,10 @@
         android:id="@+id/titleView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:textSize="99sp" />
+        android:text="Hello World"
+        android:textSize="50sp" />
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
@@ -27,14 +27,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter you pattern password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:nextFocusDown="@id/titleView"
+            android:nextFocusForward="@id/titleView"
+            android:nextFocusLeft="@id/titleView"
+            android:nextFocusRight="@id/titleView"
+            android:nextFocusUp="@id/titleView"
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
-
-    <EditText
-        android:id="@+id/patternPassword2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter you pattern password"
-        android:inputType="textPassword" />
 
 </LinearLayout>
