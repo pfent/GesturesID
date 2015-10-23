@@ -117,7 +117,7 @@ public class SensorData {
         dTWMatrix[0][0] = 0;
 
         for (int i = 1; i < dTWMatrixHeight; i++) {
-            for (int j = Math.max(1, i - windowSize); i < (Math.min(dTWMatrixWidth, i + windowSize)); i++) {
+            for (int j = Math.max(1, i - windowSize); j < (Math.min(dTWMatrixWidth, j + windowSize)); j++) {
                 final float cost = Math.abs(first[i - 1] - second[j - 1]); // Euclidean distance
                 dTWMatrix[i][j] = cost +
                         Math.min(dTWMatrix[i - 1][j], // insert
