@@ -12,8 +12,8 @@ public class SensorData {
 
     public SensorData(float[][] data) {
         this.data = data;
-        exponentiallySmoothData(data, 0.5f);
-        normalizeData(data);
+        //exponentiallySmoothData(data, 0.5f);
+        //normalizeData(data);
     }
 
     /**
