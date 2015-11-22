@@ -13,7 +13,6 @@ buildscript {
 allprojects {
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:all"
-        options.compilerArgs << "-Werror"
     }
     repositories {
         jcenter()

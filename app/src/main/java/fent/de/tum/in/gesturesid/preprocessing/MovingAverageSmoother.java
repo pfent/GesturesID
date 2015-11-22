@@ -1,6 +1,6 @@
 package fent.de.tum.in.gesturesid.preprocessing;
 
-import fent.de.tum.in.gesturesid.sensormeasurement.SensorData;
+import fent.de.tum.in.sensormeasurement.SensorData;
 
 /**
  * Implements a simple moving average filter to smoothen the SensorData and better localize the

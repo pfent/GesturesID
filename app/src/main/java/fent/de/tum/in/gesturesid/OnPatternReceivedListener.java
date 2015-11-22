@@ -1,6 +1,6 @@
 package fent.de.tum.in.gesturesid;
 
-import fent.de.tum.in.gesturesid.sensormeasurement.SensorData;
+import fent.de.tum.in.sensormeasurement.SensorData;
 
 public interface OnPatternReceivedListener {
 

@@ -1,6 +1,7 @@
 package fent.de.tum.in.gesturesid.preprocessing;
 
-import fent.de.tum.in.gesturesid.sensormeasurement.SensorData;
+
+import fent.de.tum.in.sensormeasurement.SensorData;
 
 /**
  * Implements an exponential filter to smoothen the SensorData and better localize the distinctive values

@@ -1,6 +1,6 @@
 package fent.de.tum.in.gesturesid.preprocessing;
 
-import fent.de.tum.in.gesturesid.sensormeasurement.SensorData;
+import fent.de.tum.in.sensormeasurement.SensorData;
 
 /**
  * A composing preprocessor, that combines multiple Preprocessors and executes them sequentially

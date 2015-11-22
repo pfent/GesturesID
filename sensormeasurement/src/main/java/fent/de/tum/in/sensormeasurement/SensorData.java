@@ -1,8 +1,4 @@
-package fent.de.tum.in.gesturesid.sensormeasurement;
-
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
+package fent.de.tum.in.sensormeasurement;
 
 import java.util.Arrays;
 
@@ -88,36 +84,6 @@ public class SensorData {
 
     public int getDimension() {
         return data.length;
-    }
-
-    public void displayData(GraphView[] views) {
-        if (views.length != data.length) {
-            throw new IllegalArgumentException();
-        }
-
-        final int vectorSize = data.length;
-
-        for (int i = 0; i < vectorSize; i++) {
-            displayData(views[i], i);
-        }
-    }
-
-    public void displayData(GraphView view, int index) {
-        if (index >= data.length) {
-            throw new IllegalArgumentException();
-        }
-
-        final float[] dataRow = data[index];
-        final DataPoint[] dataPointRow = new DataPoint[dataRow.length];
-        final int dataRowSize = data[index].length;
-
-        for (int j = 0; j < dataRowSize; j++) {
-            dataPointRow[j] = new DataPoint(j, dataRow[j]);
-        }
-
-        // now set this dataPointRow to the appropriate View
-        view.removeAllSeries();
-        view.addSeries(new LineGraphSeries<>(dataPointRow));
     }
 
     public String toCSV() {
