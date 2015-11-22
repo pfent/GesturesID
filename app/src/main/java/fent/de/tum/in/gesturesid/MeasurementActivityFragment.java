@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import fent.de.tum.in.gesturesid.sensormeasurement.SensorDataBuilder;
+
 /**
  * A placeholder fragment containing a simple view.
  */

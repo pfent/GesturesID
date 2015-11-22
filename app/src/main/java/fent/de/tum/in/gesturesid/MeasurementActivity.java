@@ -16,6 +16,8 @@ import android.view.MenuItem;
 
 import java.io.FileOutputStream;
 
+import fent.de.tum.in.gesturesid.sensormeasurement.SensorData;
+
 public class MeasurementActivity extends AppCompatActivity implements OnPatternReceivedListener {
 
     private SensorData sensorData;

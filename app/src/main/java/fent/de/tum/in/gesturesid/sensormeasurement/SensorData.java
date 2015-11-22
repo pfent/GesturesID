@@ -1,4 +1,4 @@
-package fent.de.tum.in.gesturesid;
+package fent.de.tum.in.gesturesid.sensormeasurement;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -8,12 +8,10 @@ import java.util.Arrays;
 
 public class SensorData {
 
-    private final float[][] data;
+    public final float[][] data;
 
     public SensorData(float[][] data) {
         this.data = data;
-        //exponentiallySmoothData(data, 0.5f);
-        //normalizeData(data);
     }
 
     /**
@@ -31,47 +29,6 @@ public class SensorData {
             final double mean = sum / dataRowSize;
             for (int j = 0; j < dataRowSize; j++) {
                 dataRow[j] -= mean;
-            }
-        }
-    }
-
-    /**
-     * Smooth the dataSet to better localize the distinctive values
-     *
-     * @param alpha the exponential factor: in rage (0…1). Lower alpha means slower averaging
-     */
-    private static void exponentiallySmoothData(float[][] dataSet, float alpha) {
-        for (final float[] dataRow : dataSet) {
-            final int dataRowSize = dataRow.length;
-
-            float oldValue = dataRow[0];
-
-            for (int i = 0; i < dataRowSize; i++) {
-                final float value = dataRow[i];
-                final float newValue = oldValue + alpha * (value - oldValue);
-                oldValue = newValue;
-                dataRow[i] = newValue;
-            }
-        }
-    }
-
-    private static void movingAverageSmoothData(float[][] dataSet, int windowSize) {
-        float[] window = new float[windowSize];
-        for (final float[] dataRow : dataSet) {
-            float sum = 0;
-            // initially fill the window. Smoothing gradually gets better
-            for (int i = 0; i < windowSize; i++) {
-                window[i] = dataRow[i];
-                sum += dataRow[i];
-                dataRow[i] = sum / i;
-            }
-            // calculate the average of the last (windowSize) data points
-            for (int i = windowSize; i < dataRow.length; i++) {
-                final int wrappedPosition = i % windowSize;
-                sum -= window[wrappedPosition];
-                window[wrappedPosition] = dataRow[i];
-                sum += dataRow[i];
-                dataRow[i] = sum / windowSize;
             }
         }
     }

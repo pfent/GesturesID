@@ -1,4 +1,4 @@
-package fent.de.tum.in.gesturesid;
+package fent.de.tum.in.gesturesid.sensormeasurement;
 
 import java.util.ArrayList;
 import java.util.List;
