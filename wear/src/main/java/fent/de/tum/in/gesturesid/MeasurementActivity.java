@@ -1,12 +1,14 @@
 package fent.de.tum.in.gesturesid;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
+import android.support.wearable.view.ActionPage;
 import android.support.wearable.view.BoxInsetLayout;
 import android.support.wearable.view.CircularButton;
 import android.util.Log;
@@ -27,8 +29,7 @@ public class MeasurementActivity extends WearableActivity {
             new SimpleDateFormat("HH:mm", Locale.US);
 
     private BoxInsetLayout mContainerView;
-    private TextView mTextView;
-    private CircularButton mButton;
+    private ActionPage mActionPage;
     private boolean isRecording = false;
 
     SensorDataBuilder builder;
@@ -57,29 +58,34 @@ public class MeasurementActivity extends WearableActivity {
         setAmbientEnabled();
 
         mContainerView = (BoxInsetLayout) findViewById(R.id.container);
-        mTextView = (TextView) findViewById(R.id.text);
-        mButton = (CircularButton) findViewById(R.id.button);
-
+        mActionPage = (ActionPage) findViewById(R.id.actionpage);
+        mActionPage.setOnClickListener(onClickListener);
 
         manager = (SensorManager) this.getSystemService(Context.SENSOR_SERVICE);
         sensor = (manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
     }
 
-    public void onButtonClick(View v) {
-        // Perform action on click
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // Perform action on click
 
-        if (!isRecording) {
-            isRecording = true;
-            mButton.setColor(0x00FF0000);
-            builder = null;
-            manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
-            Log.d("Test", "Start sensor listening");
-            return;
+            if (!isRecording) {
+                isRecording = true;
+                mActionPage.setColor(Color.RED);
+                mActionPage.setText(getText(R.string.stop_measurement));
+                builder = null;
+                manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                Log.d("Test", "Start sensor listening");
+                return;
+            }
+            isRecording = false;
+            mActionPage.setColor(Color.GREEN);
+            mActionPage.setText(getText(R.string.start_measurement));
+            manager.unregisterListener(listener);
+            Log.d("Test", builder.toSensorData().toCSV());
+            Log.d("Test", "Stop sensor listening");
         }
-        isRecording = false;
-        mButton.setColor(0x0000FFFF);
-        manager.unregisterListener(listener);
-        Log.d("Test", builder.toSensorData().toCSV());
-        Log.d("Test", "Stop sensor listening");
-    }
+    };
+
 }
