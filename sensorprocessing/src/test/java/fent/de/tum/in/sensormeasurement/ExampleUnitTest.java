@@ -1,4 +1,4 @@
-package fent.de.tum.in.sensormeasurement;
+package fent.de.tum.in.sensorprocessing;
 
 import org.junit.Test;
 

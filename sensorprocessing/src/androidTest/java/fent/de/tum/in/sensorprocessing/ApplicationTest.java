@@ -1,4 +1,4 @@
-package fent.de.tum.in.sensormeasurement;
+package fent.de.tum.in.sensorprocessing;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

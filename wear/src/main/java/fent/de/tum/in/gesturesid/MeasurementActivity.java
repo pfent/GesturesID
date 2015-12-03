@@ -10,18 +10,13 @@ import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.ActionPage;
 import android.support.wearable.view.BoxInsetLayout;
-import android.support.wearable.view.CircularButton;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
-import fent.de.tum.in.sensormeasurement.SensorDataBuilder;
+import fent.de.tum.in.sensorprocessing.measurement.SensorDataBuilder;
 
 public class MeasurementActivity extends WearableActivity {
 

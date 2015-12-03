@@ -11,7 +11,7 @@ import android.support.v4.app.Fragment;
 
 import com.jjoe64.graphview.GraphView;
 
-import fent.de.tum.in.sensormeasurement.SensorData;
+import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
 
 public class SensorDisplayFragment extends Fragment {

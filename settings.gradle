@@ -1,1 +1,1 @@
-include ':app', ':wear', ':sensormeasurement'
+include ':app', ':wear', ':sensorprocessing'

@@ -1,4 +1,4 @@
-package fent.de.tum.in.gesturesid.featureextraction;
+package fent.de.tum.in.sensorprocessing.featureextraction;
 
 import java.util.Collections;
 import java.util.List;
