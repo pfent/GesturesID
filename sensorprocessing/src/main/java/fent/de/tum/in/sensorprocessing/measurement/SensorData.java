@@ -10,25 +10,6 @@ public class SensorData {
         this.data = data;
     }
 
-    /**
-     * Normalize the dataSet to get a mean of 0
-     */
-    private static void normalizeData(float[][] dataSet) {
-        for (final float[] dataRow : dataSet) {
-            final int dataRowSize = dataRow.length;
-
-            double sum = 0;
-            for (float value : dataRow) {
-                sum += value;
-            }
-
-            final double mean = sum / dataRowSize;
-            for (int j = 0; j < dataRowSize; j++) {
-                dataRow[j] -= mean;
-            }
-        }
-    }
-
     private static float dTWDistance(float[] first, float[] second) {
         final int dTWMatrixHeight = first.length + 1;
         final int dTWMatrixWidth = second.length + 1;
