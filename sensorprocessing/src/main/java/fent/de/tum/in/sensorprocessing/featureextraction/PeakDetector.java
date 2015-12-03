@@ -22,7 +22,7 @@ import java.util.ArrayList;
  */
 public class PeakDetector {
 
-    private final float[] T;
+    private float[] T;
     private final int windowSize;
     private final float stringency;
 
@@ -36,10 +36,14 @@ public class PeakDetector {
      *                       mean + stringency * std</code> will be rejected. <code>Mean</code> and <code>std</code> are calculated on the
      *                       spikiness function. Typical values range from 1 to 3.
      */
-    public PeakDetector(final float[] timeSeriesData, int windowSize, float stringency) {
-        this.T = timeSeriesData;
+    public PeakDetector(int windowSize, float stringency) {
         this.windowSize = windowSize;
         this.stringency = stringency;
+    }
+
+    public PeakDetector setTimeSeriesData(float[] timeSeriesData){
+        this.T = timeSeriesData;
+        return this;
     }
 
     /**
