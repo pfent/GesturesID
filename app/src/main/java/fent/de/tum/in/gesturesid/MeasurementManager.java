@@ -28,12 +28,12 @@ public class MeasurementManager extends SQLiteOpenHelper {
     private static final String
             CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " ( " +
             USERS_ID + " INTEGER PRIMARY KEY, " +
-            USERS_NAME + "TEXT );",
+            USERS_NAME + " TEXT );",
             CREATE_TABLE_MEASUREMENTS = "CREATE TABLE IF NOT EXISTS " + TABLE_MEASUREMENTS + " ( " +
                     MEASUREMENTS_ID + " INTEGER PRIMARY KEY, " +
                     USERS_ID + " INTEGER, " +
                     MEASUREMENTS_STARTTIME + " INETEGER, " +
-                    MEASRUEMENTS_ENDTIME + " INTEGER " +
+                    MEASRUEMENTS_ENDTIME + " INTEGER, " +
                     "FOREIGN KEY (" + USERS_ID + ") REFERENCES " + TABLE_USERS + "(" + USERS_ID + ")" + " );",
             CREATE_TABLE_DATASETS = "CREATE TABLE IF NOT EXISTS " + TABLE_DATASETS + " ( " +
                     MEASUREMENTS_ID + " INTEGER, " +
@@ -108,11 +108,11 @@ public class MeasurementManager extends SQLiteOpenHelper {
             }
 
             values.clear();
-            values.put(MEASUREMENTS_ID, measurementID);
+            //values.put(MEASUREMENTS_ID, measurementID);
             values.put(MEASUREMENTS_STARTTIME, startTime);
             values.put(MEASRUEMENTS_ENDTIME, endTime);
 
-            db.update(TABLE_MEASUREMENTS, values, null, null);
+            db.update(TABLE_MEASUREMENTS, values, MEASUREMENTS_ID + " = ?", new String[]{Long.toString(measurementID)});
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -137,7 +137,7 @@ public class MeasurementManager extends SQLiteOpenHelper {
         // NOP: currently only version 1
     }
 
-    public MeasurementManager getInstance(Context context) {
+    public static MeasurementManager getInstance(Context context) {
         if (instance == null) {
             instance = new MeasurementManager(context);
         }
