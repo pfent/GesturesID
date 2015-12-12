@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fent.de.tum.in.sensorprocessing.measurement.SensorDataBuilder;
 
 /**
@@ -21,14 +24,20 @@ public class PatternFocusChangeListener implements View.OnFocusChangeListener {
     private final SensorManager manager;
     private final Sensor sensor;
     private final OnPatternReceivedListener callback;
+    private long startTime, endTime;
+    private List<Long> timestamps = new ArrayList<>();
     private final SensorEventListener listener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (builder == null) {
                 builder = new SensorDataBuilder(event.values);
+                startTime = System.nanoTime();
+                timestamps.add(startTime);
                 return;
             }
             builder.append(event.values);
+            endTime = System.nanoTime();
+            timestamps.add(endTime);
         }
 
         @Override
@@ -44,7 +53,6 @@ public class PatternFocusChangeListener implements View.OnFocusChangeListener {
     }
 
 
-
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (hasFocus) {
@@ -55,8 +63,13 @@ public class PatternFocusChangeListener implements View.OnFocusChangeListener {
             return;
         }
         manager.unregisterListener(listener);
-        callback.OnPatternReceived(builder.toSensorData());
+        callback.OnPatternReceived(builder.toSensorData(), startTime, endTime);
         Log.d("Test", "EditText lost focus");
+
+        long lastTimeStamp = timestamps.get(0);
+        for (long timestamp : timestamps) {
+            Log.d("Test", "Time between timestamps: " + (timestamp - lastTimeStamp));
+        }
 
         // Hide the keyboard
         InputMethodManager manager = (InputMethodManager) v.getContext()

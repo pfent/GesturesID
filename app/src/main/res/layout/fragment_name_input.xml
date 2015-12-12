@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".fragments.MeasurementActivityFragment">
+    tools:context="fent.de.tum.in.gesturesid.fragments.NameInputFragment">
 
     <TextView
         android:id="@+id/titleView"
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:text="@string/pattern_input_instructions"
+        android:text="Please enter your name to create a new dataset"
         android:textSize="36sp" />
 
     <android.support.design.widget.TextInputLayout
@@ -23,10 +23,10 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/patternPassword"
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/pattern_password_hint"
+            android:hint="Enter your name here"
             android:inputType="textPassword"
             android:nextFocusDown="@id/titleView"
             android:nextFocusForward="@id/titleView"

@@ -1,6 +1,5 @@
 package fent.de.tum.in.gesturesid;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -9,23 +8,25 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.io.FileOutputStream;
-
+import fent.de.tum.in.gesturesid.fragments.MeasurementActivityFragment;
+import fent.de.tum.in.gesturesid.fragments.NameInputFragment;
 import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
-public class MeasurementActivity extends AppCompatActivity implements OnPatternReceivedListener {
+public class MeasurementActivity extends AppCompatActivity implements OnPatternReceivedListener, NameInputFragment.OnNameInputListener {
 
     private SensorData sensorData;
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
     private MeasurementActivityFragment inputFragment;
     private SensorDisplayFragment displayFragment = SensorDisplayFragment.newInstance();
+    private MeasurementManager measurementManager = MeasurementManager.getInstance(this);
+    private NameInputFragment nameFragment = new NameInputFragment().newInstance();
+    private long userID = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +35,17 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        inputFragment = MeasurementActivityFragment.newInstance(this);
+        inputFragment = MeasurementActivityFragment.newInstance();
         viewPager = (ViewPager) findViewById(R.id.vPager);
         pagerAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return inputFragment;
+                        return nameFragment;
                     case 1:
+                        return inputFragment;
+                    case 2:
                         return displayFragment;
                     default:
                         return null;
@@ -51,7 +54,7 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
 
             @Override
             public int getCount() {
-                return 2;
+                return 3;
             }
         };
         viewPager.setAdapter(pagerAdapter);
@@ -88,16 +91,21 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
     }
 
     @Override
-    public void OnPatternReceived(SensorData data) {
+    public void OnPatternReceived(SensorData data, long startTime, long endTime) {
         sensorData = data;
-        FileOutputStream outputStream;
-        try {
-            outputStream = openFileOutput("csvdump.csv", Context.MODE_PRIVATE);
-            outputStream.write(data.toCSV().getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            Log.e("CSVDUMP", e.toString());
+
+        if (userID < 0) {
+            throw new IllegalStateException("userID needs to be set first");
         }
-        displayFragment.displayData(data);
+
+        long measurementID = measurementManager.createMeasurement(userID);
+        measurementManager.addMeasurementData(measurementID, startTime, endTime, data.data);
+
+        //displayFragment.displayData(data);
+    }
+
+    @Override
+    public void onNameInput(String name) {
+        this.userID = measurementManager.createUser(name);
     }
 }
