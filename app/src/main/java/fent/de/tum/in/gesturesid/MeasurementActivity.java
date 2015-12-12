@@ -16,6 +16,7 @@ import android.view.MenuItem;
 
 import java.io.FileOutputStream;
 
+import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
 public class MeasurementActivity extends AppCompatActivity implements OnPatternReceivedListener {
@@ -23,7 +24,7 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
     private SensorData sensorData;
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
-    private MeasurementActivityFragment inputFragment = MeasurementActivityFragment.newInstance();
+    private MeasurementActivityFragment inputFragment;
     private SensorDisplayFragment displayFragment = SensorDisplayFragment.newInstance();
 
     @Override
@@ -33,7 +34,7 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        inputFragment.setOnPatternReceivedListener(this);
+        inputFragment = MeasurementActivityFragment.newInstance(this);
         viewPager = (ViewPager) findViewById(R.id.vPager);
         pagerAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override

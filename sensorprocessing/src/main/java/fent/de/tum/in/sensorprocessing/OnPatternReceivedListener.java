@@ -1,4 +1,4 @@
-package fent.de.tum.in.gesturesid;
+package fent.de.tum.in.sensorprocessing;
 
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
