@@ -46,6 +46,12 @@ public class PatternFocusChangeListener implements View.OnFocusChangeListener {
         }
     };
 
+    /**
+     * Contstruct the listener
+     * @param context context to get the SensorManager
+     * @param sensorType the sensor type from SensorManager.getSensorList(int)
+     * @param callback the callback to be called, when a new pattern has been completed
+     */
     public PatternFocusChangeListener(Context context, int sensorType, OnPatternReceivedListener callback) {
         manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         sensor = (manager.getDefaultSensor(sensorType));
@@ -69,6 +75,7 @@ public class PatternFocusChangeListener implements View.OnFocusChangeListener {
         long lastTimeStamp = timestamps.get(0);
         for (long timestamp : timestamps) {
             Log.d("Test", "Time between timestamps: " + (timestamp - lastTimeStamp));
+            lastTimeStamp = timestamp;
         }
 
         // Hide the keyboard
