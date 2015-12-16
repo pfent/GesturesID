@@ -1,5 +1,6 @@
 package fent.de.tum.in.gesturesid;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import fent.de.tum.in.gesturesid.fragments.EndFragment;
 import fent.de.tum.in.gesturesid.fragments.MeasurementActivityFragment;
 import fent.de.tum.in.gesturesid.fragments.NameInputFragment;
 import fent.de.tum.in.gesturesid.fragments.SensorDisplayFragment;
@@ -24,10 +26,12 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
     private SensorData sensorData;
     private ViewPager viewPager;
     private PagerAdapter pagerAdapter;
-    private MeasurementActivityFragment inputFragment;
-    private SensorDisplayFragment displayFragment = SensorDisplayFragment.newInstance();
+    private static final int INPUT_FRAGMENTS = 10;
+    private MeasurementActivityFragment[] inputFragments = new MeasurementActivityFragment[INPUT_FRAGMENTS];
     private MeasurementManager measurementManager = MeasurementManager.getInstance(this);
-    private NameInputFragment nameFragment = new NameInputFragment().newInstance();
+    private NameInputFragment nameFragment = NameInputFragment.newInstance();
+    private EndFragment endFragment = EndFragment.newInstance();
+    private static final int TOTAL_FRAGMENTS = INPUT_FRAGMENTS + 2;
     private long userID = -1;
 
     @Override
@@ -37,7 +41,9 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        inputFragment = MeasurementActivityFragment.newInstance();
+        for (int i = 0; i < inputFragments.length; i++) {
+            inputFragments[i] = MeasurementActivityFragment.newInstance();
+        }
         viewPager = (ViewPager) findViewById(R.id.vPager);
         pagerAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -45,18 +51,16 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
                 switch (position) {
                     case 0:
                         return nameFragment;
-                    case 1:
-                        return inputFragment;
-                    case 2:
-                        return displayFragment;
+                    case TOTAL_FRAGMENTS - 1:
+                        return endFragment;
                     default:
-                        return null;
+                        return inputFragments[position - 1];
                 }
             }
 
             @Override
             public int getCount() {
-                return 3;
+                return TOTAL_FRAGMENTS;
             }
         };
         viewPager.setAdapter(pagerAdapter);
@@ -65,7 +69,13 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                viewPager.setCurrentItem(1);
+                if (viewPager.getCurrentItem() < TOTAL_FRAGMENTS - 1) {
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+                } else {
+                    Intent intent = getIntent();
+                    finish();
+                    startActivity(intent);
+                }
             }
         });
     }
