@@ -24,10 +24,6 @@ import fent.de.tum.in.sensorprocessing.measurement.SensorDataBuilder;
 
 public class MeasurementActivity extends WearableActivity implements OnPatternReceivedListener {
 
-    private static final SimpleDateFormat AMBIENT_DATE_FORMAT =
-            new SimpleDateFormat("HH:mm", Locale.US);
-
-    private BoxInsetLayout mContainerView;
     private ActionPage mActionPage;
     private boolean isRecording = false;
 
@@ -41,7 +37,6 @@ public class MeasurementActivity extends WearableActivity implements OnPatternRe
         setContentView(R.layout.activity_measurement);
         setAmbientEnabled();
 
-        mContainerView = (BoxInsetLayout) findViewById(R.id.container);
         mActionPage = (ActionPage) findViewById(R.id.actionpage);
         mActionPage.setOnClickListener(onClickListener);
 
