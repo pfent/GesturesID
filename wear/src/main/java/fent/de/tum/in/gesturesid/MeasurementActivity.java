@@ -16,9 +16,13 @@ import android.view.View;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import fent.de.tum.in.sensorprocessing.MeasurementManager;
+import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
+import fent.de.tum.in.sensorprocessing.PatternRecorder;
+import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 import fent.de.tum.in.sensorprocessing.measurement.SensorDataBuilder;
 
-public class MeasurementActivity extends WearableActivity {
+public class MeasurementActivity extends WearableActivity implements OnPatternReceivedListener {
 
     private static final SimpleDateFormat AMBIENT_DATE_FORMAT =
             new SimpleDateFormat("HH:mm", Locale.US);
@@ -27,24 +31,9 @@ public class MeasurementActivity extends WearableActivity {
     private ActionPage mActionPage;
     private boolean isRecording = false;
 
-    SensorDataBuilder builder;
-    SensorManager manager;
-    Sensor sensor;
-    SensorEventListener listener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            if (builder == null) {
-                builder = new SensorDataBuilder(event.values);
-                return;
-            }
-            builder.append(event.values);
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // NOP for now
-        }
-    };
+    private PatternRecorder recorder;
+    private MeasurementManager manager;
+    private long dummyUserID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,31 +45,34 @@ public class MeasurementActivity extends WearableActivity {
         mActionPage = (ActionPage) findViewById(R.id.actionpage);
         mActionPage.setOnClickListener(onClickListener);
 
-        manager = (SensorManager) this.getSystemService(Context.SENSOR_SERVICE);
-        sensor = (manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
+        recorder = new PatternRecorder(this, Sensor.TYPE_ACCELEROMETER, this);
+        manager = MeasurementManager.getInstance(this);
+        dummyUserID = manager.createUser("wearDummy");
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             // Perform action on click
-
             if (!isRecording) {
                 isRecording = true;
                 mActionPage.setColor(Color.RED);
                 mActionPage.setText(getText(R.string.stop_measurement));
-                builder = null;
-                manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                recorder.startListening();
                 Log.d("Test", "Start sensor listening");
                 return;
             }
             isRecording = false;
             mActionPage.setColor(Color.GREEN);
             mActionPage.setText(getText(R.string.start_measurement));
-            manager.unregisterListener(listener);
-            Log.d("Test", builder.toSensorData().toCSV());
+            recorder.stopListening();
             Log.d("Test", "Stop sensor listening");
         }
     };
 
+    @Override
+    public void OnPatternReceived(SensorData data, long startTime, long endTime) {
+        long measurementID = manager.createMeasurement(dummyUserID);
+        manager.addMeasurementData(measurementID, startTime, endTime, data.data);
+    }
 }
