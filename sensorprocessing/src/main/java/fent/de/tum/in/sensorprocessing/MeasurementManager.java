@@ -4,6 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 public class MeasurementManager extends SQLiteOpenHelper {
 
@@ -44,9 +52,12 @@ public class MeasurementManager extends SQLiteOpenHelper {
                     "PRIMARY KEY ( " + MEASUREMENTS_ID + ", " + DATASETS_POINTNUMBER + " ) );";
 
 
+    private Context context;
+
     private MeasurementManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         instance = this;
+        this.context = context;
     }
 
     /**
@@ -142,5 +153,36 @@ public class MeasurementManager extends SQLiteOpenHelper {
             instance = new MeasurementManager(context);
         }
         return instance;
+    }
+
+    public void copyDbToSdCard() {
+        String path = context.getApplicationInfo().dataDir;
+        String databasePath = path + "/databases/" + DATABASE_NAME;
+
+        String external = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+        String externalDatabasePath = external + "/" + DATABASE_NAME;
+
+        File src = new File(databasePath);
+        File dst = new File(externalDatabasePath);
+
+        try {
+
+            if(dst.exists()) {
+                dst.delete();
+            }
+            dst.createNewFile();
+
+            FileInputStream inStream = new FileInputStream(src);
+            FileOutputStream outStream = new FileOutputStream(dst);
+
+            FileChannel inChannel = inStream.getChannel();
+            FileChannel outChannel = outStream.getChannel();
+
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+            inStream.close();
+            outStream.close();
+        }catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

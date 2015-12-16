@@ -1,4 +1,4 @@
-package fent.de.tum.in.gesturesid;
+package fent.de.tum.in.gesturesid.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 
 import com.jjoe64.graphview.GraphView;
 
+import fent.de.tum.in.gesturesid.R;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
 

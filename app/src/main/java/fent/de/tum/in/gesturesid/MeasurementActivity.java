@@ -14,6 +14,7 @@ import android.view.MenuItem;
 
 import fent.de.tum.in.gesturesid.fragments.MeasurementActivityFragment;
 import fent.de.tum.in.gesturesid.fragments.NameInputFragment;
+import fent.de.tum.in.gesturesid.fragments.SensorDisplayFragment;
 import fent.de.tum.in.sensorprocessing.MeasurementManager;
 import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
@@ -101,6 +102,8 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
 
         long measurementID = measurementManager.createMeasurement(userID);
         measurementManager.addMeasurementData(measurementID, startTime, endTime, data.data);
+
+        measurementManager.copyDbToSdCard();
 
         //displayFragment.displayData(data);
     }
