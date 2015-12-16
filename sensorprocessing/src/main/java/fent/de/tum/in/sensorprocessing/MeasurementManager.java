@@ -1,4 +1,4 @@
-package fent.de.tum.in.gesturesid;
+package fent.de.tum.in.sensorprocessing;
 
 import android.content.ContentValues;
 import android.content.Context;

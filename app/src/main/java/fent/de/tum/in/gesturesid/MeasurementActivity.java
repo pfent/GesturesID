@@ -14,6 +14,7 @@ import android.view.MenuItem;
 
 import fent.de.tum.in.gesturesid.fragments.MeasurementActivityFragment;
 import fent.de.tum.in.gesturesid.fragments.NameInputFragment;
+import fent.de.tum.in.sensorprocessing.MeasurementManager;
 import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
