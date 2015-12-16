@@ -107,15 +107,13 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
         sensorData = data;
 
         if (userID < 0) {
-            throw new IllegalStateException("userID needs to be set first");
+            this.userID = measurementManager.createUser("noname");
         }
 
         long measurementID = measurementManager.createMeasurement(userID);
         measurementManager.addMeasurementData(measurementID, startTime, endTime, data.data);
 
         measurementManager.copyDbToSdCard();
-
-        //displayFragment.displayData(data);
     }
 
     @Override
