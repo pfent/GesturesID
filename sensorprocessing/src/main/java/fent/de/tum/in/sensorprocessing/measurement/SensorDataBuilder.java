@@ -16,12 +16,13 @@ public class SensorDataBuilder {
     private List<Long> timeStamps;
 
     public SensorDataBuilder(int dimension) {
-        this(new float[dimension]);
+        this(new float[dimension], System.nanoTime());
     }
 
-    public SensorDataBuilder(float[] initialDataVector) {
+    public SensorDataBuilder(float[] initialDataVector, long timestamp) {
         buildupData = new ArrayList<>(initialDataVector.length);
         timeStamps = new ArrayList<>(initialCapacity);
+        timeStamps.add(timestamp);
         for (float data : initialDataVector) {
             ArrayList<Float> dataRow = new ArrayList<Float>(initialCapacity);
             dataRow.add(data);

@@ -145,7 +145,7 @@ public class MeasurementManager extends SQLiteOpenHelper {
                 values.put(KEYSTROKES_TIME, keystrokeTime[i]);
                 values.put(KEYSTROKES_CHARACTER, Character.toString(keystrokes[i]));
 
-                db.insert(TABLE_DATASETS, null, values);
+                db.insert(TABLE_KEYSTROKES, null, values);
             }
 
             db.setTransactionSuccessful();

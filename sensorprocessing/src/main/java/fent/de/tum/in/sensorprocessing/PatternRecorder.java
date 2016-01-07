@@ -25,7 +25,7 @@ public class PatternRecorder {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (builder == null) {
-                builder = new SensorDataBuilder(event.values);
+                builder = new SensorDataBuilder(event.values, System.nanoTime());
                 return;
             }
             builder.append(event.values, System.nanoTime());
