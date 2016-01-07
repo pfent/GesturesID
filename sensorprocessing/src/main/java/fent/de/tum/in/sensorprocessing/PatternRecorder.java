@@ -21,20 +21,14 @@ public class PatternRecorder {
     private final SensorManager manager;
     private final Sensor sensor;
     private final OnPatternReceivedListener callback;
-    private long startTime, endTime;
-    private List<Long> timestamps = new ArrayList<>();
     private final SensorEventListener listener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (builder == null) {
                 builder = new SensorDataBuilder(event.values);
-                startTime = System.nanoTime();
-                timestamps.add(startTime);
                 return;
             }
-            builder.append(event.values);
-            endTime = System.nanoTime();
-            timestamps.add(endTime);
+            builder.append(event.values, System.nanoTime());
         }
 
         @Override
@@ -64,14 +58,8 @@ public class PatternRecorder {
      */
     public void stopListening() {
         manager.unregisterListener(listener);
-        callback.OnPatternReceived(builder.toSensorData(), startTime, endTime);
+        callback.OnPatternReceived(builder.toSensorData());
         Log.d("Test", "EditText lost focus");
-
-        long lastTimeStamp = timestamps.get(0);
-        for (long timestamp : timestamps) {
-            Log.d("Test", "Time between timestamps: " + (timestamp - lastTimeStamp));
-            lastTimeStamp = timestamp;
-        }
     }
 
 }

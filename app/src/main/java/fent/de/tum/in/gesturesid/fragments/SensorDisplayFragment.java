@@ -17,7 +17,7 @@ import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
 public class SensorDisplayFragment extends Fragment {
 
-    SensorData data = new SensorData(new float[0][0]);
+    SensorData data = new SensorData(new float[0][0], new long[0]);
     GraphView[] graphs = new GraphView[0];
     ListView listView;
     BaseAdapter adapter;

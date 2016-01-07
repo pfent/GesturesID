@@ -23,15 +23,18 @@ public class MeasurementManager extends SQLiteOpenHelper {
             TABLE_USERS = "users",
             TABLE_MEASUREMENTS = "measurements",
             TABLE_DATASETS = "datasets",
+            TABLE_KEYSTROKES = "keystrokes",
             USERS_ID = "userID",
             USERS_NAME = "name",
             MEASUREMENTS_ID = "measurementID",
-            MEASUREMENTS_STARTTIME = "startTime",
-            MEASRUEMENTS_ENDTIME = "endTime",
+            MEASUREMENTS_TIME = "sensorTime",
             DATASETS_POINTNUMBER = "measurmentPointNumber",
             DATASETS_XAXIS = "xAxis",
             DATASETS_YAXIS = "yAxis",
-            DATASETS_ZAXIS = "zAxis";
+            DATASETS_ZAXIS = "zAxis",
+            KEYSTROKES_POINTNUMBER = "keystrokeNumber",
+            KEYSTROKES_TIME = "keystrokeTime",
+            KEYSTROKES_CHARACTER = "keyStroked";
 
     private static final String
             CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " ( " +
@@ -40,16 +43,21 @@ public class MeasurementManager extends SQLiteOpenHelper {
             CREATE_TABLE_MEASUREMENTS = "CREATE TABLE IF NOT EXISTS " + TABLE_MEASUREMENTS + " ( " +
                     MEASUREMENTS_ID + " INTEGER PRIMARY KEY, " +
                     USERS_ID + " INTEGER, " +
-                    MEASUREMENTS_STARTTIME + " INETEGER, " +
-                    MEASRUEMENTS_ENDTIME + " INTEGER, " +
                     "FOREIGN KEY (" + USERS_ID + ") REFERENCES " + TABLE_USERS + "(" + USERS_ID + ")" + " );",
             CREATE_TABLE_DATASETS = "CREATE TABLE IF NOT EXISTS " + TABLE_DATASETS + " ( " +
                     MEASUREMENTS_ID + " INTEGER, " +
                     DATASETS_POINTNUMBER + " INTEGER, " +
+                    MEASUREMENTS_TIME + " INTEGER, " +
                     DATASETS_XAXIS + " REAL, " +
                     DATASETS_YAXIS + " REAL, " +
                     DATASETS_ZAXIS + " REAL, " +
-                    "PRIMARY KEY ( " + MEASUREMENTS_ID + ", " + DATASETS_POINTNUMBER + " ) );";
+                    "PRIMARY KEY ( " + MEASUREMENTS_ID + ", " + DATASETS_POINTNUMBER + " ) );",
+            CREATE_TABLE_KEYSTROKES = "CREATE TABLE IF NOT EXISTS " + TABLE_KEYSTROKES + " ( " +
+                    MEASUREMENTS_ID + " INTEGER, " +
+                    KEYSTROKES_POINTNUMBER + " INTEGER, " +
+                    KEYSTROKES_TIME + " INTEGER, " +
+                    KEYSTROKES_CHARACTER + " TEXT, " +
+                    "PRIMARY KEY ( " + MEASUREMENTS_ID + ", " + KEYSTROKES_POINTNUMBER + " ) );";
 
 
     private Context context;
@@ -87,8 +95,6 @@ public class MeasurementManager extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(USERS_ID, userID);
 
-        // start and endTime explicitly not set
-
         return db.insert(TABLE_MEASUREMENTS, null, values);
     }
 
@@ -100,7 +106,7 @@ public class MeasurementManager extends SQLiteOpenHelper {
      * @param endTime       when the measurment ended
      * @param data          the measurement data (X-, Y-, Z-Axis values)
      */
-    public void addMeasurementData(long measurementID, long startTime, long endTime, float[][] data) {
+    public void addMeasurementData(long measurementID, float[][] data, long[] measurementTime) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -114,16 +120,34 @@ public class MeasurementManager extends SQLiteOpenHelper {
                 values.put(DATASETS_XAXIS, data[0][i]);
                 values.put(DATASETS_YAXIS, data[1][i]);
                 values.put(DATASETS_ZAXIS, data[2][i]);
+                values.put(MEASUREMENTS_TIME, measurementTime[i]);
 
                 db.insert(TABLE_DATASETS, null, values);
             }
 
-            values.clear();
-            //values.put(MEASUREMENTS_ID, measurementID);
-            values.put(MEASUREMENTS_STARTTIME, startTime);
-            values.put(MEASRUEMENTS_ENDTIME, endTime);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
 
-            db.update(TABLE_MEASUREMENTS, values, MEASUREMENTS_ID + " = ?", new String[]{Long.toString(measurementID)});
+    public void addKeyStrokes(long measurementID, char[] keystrokes, long[] keystrokeTime) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        try {
+            db.beginTransaction();
+
+            for (int i = 0; i < keystrokes.length; i++) {
+                values.clear();
+                values.put(MEASUREMENTS_ID, measurementID);
+                values.put(KEYSTROKES_POINTNUMBER, i);
+                values.put(KEYSTROKES_TIME, keystrokeTime[i]);
+                values.put(KEYSTROKES_CHARACTER, Character.toString(keystrokes[i]));
+
+                db.insert(TABLE_DATASETS, null, values);
+            }
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -137,6 +161,7 @@ public class MeasurementManager extends SQLiteOpenHelper {
             db.execSQL(CREATE_TABLE_USERS);
             db.execSQL(CREATE_TABLE_DATASETS);
             db.execSQL(CREATE_TABLE_MEASUREMENTS);
+            db.execSQL(CREATE_TABLE_KEYSTROKES);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

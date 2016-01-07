@@ -9,9 +9,18 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.common.primitives.Chars;
+import com.google.common.primitives.Longs;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import fent.de.tum.in.gesturesid.fragments.EndFragment;
 import fent.de.tum.in.gesturesid.fragments.MeasurementActivityFragment;
@@ -21,7 +30,7 @@ import fent.de.tum.in.sensorprocessing.MeasurementManager;
 import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
-public class MeasurementActivity extends AppCompatActivity implements OnPatternReceivedListener, NameInputFragment.OnNameInputListener {
+public class MeasurementActivity extends AppCompatActivity implements OnPatternReceivedListener, NameInputFragment.OnNameInputListener, TextWatcher {
 
     private SensorData sensorData;
     private ViewPager viewPager;
@@ -33,6 +42,8 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
     private EndFragment endFragment = EndFragment.newInstance();
     private static final int TOTAL_FRAGMENTS = INPUT_FRAGMENTS + 2;
     private long userID = -1;
+    private List<Character> enteredCharacters = new ArrayList<>();
+    private List<Long> characterTimes = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +114,7 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
     }
 
     @Override
-    public void OnPatternReceived(SensorData data, long startTime, long endTime) {
+    public void OnPatternReceived(SensorData data) {
         sensorData = data;
 
         if (userID < 0) {
@@ -111,7 +122,10 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
         }
 
         long measurementID = measurementManager.createMeasurement(userID);
-        measurementManager.addMeasurementData(measurementID, startTime, endTime, data.data);
+        measurementManager.addMeasurementData(measurementID, data.data, data.timestamps);
+        measurementManager.addKeyStrokes(measurementID,
+                Chars.toArray(enteredCharacters),
+                Longs.toArray(characterTimes));
 
         measurementManager.copyDbToSdCard();
     }
@@ -119,5 +133,21 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
     @Override
     public void onNameInput(String name) {
         this.userID = measurementManager.createUser(name);
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        characterTimes.add(System.nanoTime());
+        enteredCharacters.add(s.charAt(start));
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        // NOP
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        // NOP
     }
 }

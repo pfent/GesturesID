@@ -13,7 +13,7 @@ import java.util.List;
 public class SensorDataBuilder {
     private static final int initialCapacity = 2048;
     private List<List<Float>> buildupData;
-
+    private List<Long> timeStamps;
 
     public SensorDataBuilder(int dimension) {
         this(new float[dimension]);
@@ -21,6 +21,7 @@ public class SensorDataBuilder {
 
     public SensorDataBuilder(float[] initialDataVector) {
         buildupData = new ArrayList<>(initialDataVector.length);
+        timeStamps = new ArrayList<>(initialCapacity);
         for (float data : initialDataVector) {
             ArrayList<Float> dataRow = new ArrayList<Float>(initialCapacity);
             dataRow.add(data);
@@ -35,7 +36,7 @@ public class SensorDataBuilder {
      * @return the SensorDataBuilder
      * @throws IllegalArgumentException if the dataVector has a other size than initialy created
      */
-    public SensorDataBuilder append(float[] dataVector) {
+    public SensorDataBuilder append(float[] dataVector, long timestamp) {
         if (dataVector.length != buildupData.size()) {
             throw new IllegalArgumentException();
         }
@@ -43,6 +44,8 @@ public class SensorDataBuilder {
         for (int i = 0; i < dataVector.length; i++) {
             buildupData.get(i).add(dataVector[i]);
         }
+
+        timeStamps.add(timestamp);
 
         return this;
     }
@@ -72,6 +75,11 @@ public class SensorDataBuilder {
             }
         }
 
-        return new SensorData(result);
+        long[] timestampResult = new long[timeStamps.size()];
+        for(int i = 0; i < timeStamps.size(); i++) {
+            timestampResult[i] = timeStamps.get(i);
+        }
+
+        return new SensorData(result, timestampResult);
     }
 }

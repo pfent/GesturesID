@@ -75,9 +75,9 @@ public class NameInputFragment extends Fragment {
 
     private OnPatternReceivedListener wrapper = new OnPatternReceivedListener() {
         @Override
-        public void OnPatternReceived(SensorData data, long startTime, long endTime) {
+        public void OnPatternReceived(SensorData data) {
             nameListener.onNameInput(nameField.getText().toString());
-            patternListener.OnPatternReceived(data, startTime, endTime);
+            patternListener.OnPatternReceived(data);
         }
     };
 }

@@ -66,9 +66,9 @@ public class MeasurementActivity extends WearableActivity implements OnPatternRe
     };
 
     @Override
-    public void OnPatternReceived(SensorData data, long startTime, long endTime) {
+    public void OnPatternReceived(SensorData data) {
         long measurementID = manager.createMeasurement(dummyUserID);
-        manager.addMeasurementData(measurementID, startTime, endTime, data.data);
+        manager.addMeasurementData(measurementID, data.data, data.timestamps);
         manager.copyDbToSdCard();
     }
 }

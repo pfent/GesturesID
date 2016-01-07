@@ -3,23 +3,14 @@ package fent.de.tum.in.sensorprocessing.measurement;
 public class SensorData {
 
     public final float[][] data;
+    public final long[] timestamps;
 
-    public SensorData(float[][] data) {
+    public SensorData(float[][] data, long[] timestamps) {
         this.data = data;
+        this.timestamps = timestamps;
     }
 
     public int getDimension() {
         return data.length;
-    }
-
-    public String toCSV() {
-        StringBuilder builder = new StringBuilder();
-        for (float[] line : data) {
-            for (float f : line) {
-                builder.append(f).append(';');
-            }
-            builder.append('\n');
-        }
-        return builder.toString();
     }
 }
