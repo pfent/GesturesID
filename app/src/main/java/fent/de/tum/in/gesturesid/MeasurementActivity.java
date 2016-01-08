@@ -139,7 +139,6 @@ public class MeasurementActivity extends AppCompatActivity implements OnPatternR
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        System.out.println("onTextChanged called");
         if(start >= s.length()) {
             return;
         }

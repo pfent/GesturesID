@@ -54,14 +54,12 @@ public class MeasurementActivity extends WearableActivity implements OnPatternRe
                 mActionPage.setColor(Color.RED);
                 mActionPage.setText(getText(R.string.stop_measurement));
                 recorder.startListening();
-                Log.d("Test", "Start sensor listening");
                 return;
             }
             isRecording = false;
             mActionPage.setColor(Color.GREEN);
             mActionPage.setText(getText(R.string.start_measurement));
             recorder.stopListening();
-            Log.d("Test", "Stop sensor listening");
         }
     };
 
