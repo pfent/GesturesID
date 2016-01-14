@@ -1,26 +1,16 @@
 package fent.de.tum.in.gesturesid;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.ActionPage;
-import android.support.wearable.view.BoxInsetLayout;
-import android.util.Log;
 import android.view.View;
-
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 import fent.de.tum.in.sensorprocessing.MeasurementManager;
 import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
-import fent.de.tum.in.sensorprocessing.PatternRecorder;
+import fent.de.tum.in.sensorprocessing.measurement.PatternRecorder;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
-import fent.de.tum.in.sensorprocessing.measurement.SensorDataBuilder;
 
 public class MeasurementActivity extends WearableActivity implements OnPatternReceivedListener {
 

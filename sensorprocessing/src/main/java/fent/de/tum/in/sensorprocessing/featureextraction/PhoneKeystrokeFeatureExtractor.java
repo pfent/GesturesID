@@ -11,7 +11,7 @@ public class PhoneKeystrokeFeatureExtractor implements FeatureExtractor {
 
     public final int
             TAP_INTENSITY = 0,
-            DWELL_TIME = 1;
+            INTERVAL = 1;
     public final int FEATURE_NUMBER = 2;
 
     private final int SensorDataRow = 0;
@@ -36,7 +36,7 @@ public class PhoneKeystrokeFeatureExtractor implements FeatureExtractor {
             builder.appendItemToVector(TAP_INTENSITY, data.data[SensorDataRow][tapLocations[i]]);
 
             if(lastTap != null) {
-                builder.appendItemToVector(DWELL_TIME, tapLocations[i] - lastTap);
+                builder.appendItemToVector(INTERVAL, tapLocations[i] - lastTap);
             }
 
             lastTap = tapLocations[i];

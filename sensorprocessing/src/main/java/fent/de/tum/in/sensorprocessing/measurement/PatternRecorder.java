@@ -1,4 +1,4 @@
-package fent.de.tum.in.sensorprocessing;
+package fent.de.tum.in.sensorprocessing.measurement;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -10,6 +10,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
 import fent.de.tum.in.sensorprocessing.measurement.SensorDataBuilder;
 
 /**
@@ -38,17 +39,20 @@ public class PatternRecorder {
     };
 
     /**
-     * @param context context to get the SensorManager
+     * @param context    context to get the SensorManager
      * @param sensorType the sensor type from SensorManager.getSensorList(int)
-     * @param callback the callback to be called, when a new pattern has been completed
+     * @param callback   the callback to be called, when a new pattern has been completed
      */
     public PatternRecorder(Context context, int sensorType, OnPatternReceivedListener callback) {
         this.manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         this.sensor = (manager.getDefaultSensor(sensorType));
+        if (sensor == null) {
+            throw new RuntimeException("No default sensor or no permissions for sensor");
+        }
         this.callback = callback;
     }
 
-    public void startListening(){
+    public void startListening() {
         builder = null;
         manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
@@ -59,7 +63,6 @@ public class PatternRecorder {
     public void stopListening() {
         manager.unregisterListener(listener);
         callback.OnPatternReceived(builder.toSensorData());
-        Log.d("Test", "EditText lost focus");
     }
 
 }

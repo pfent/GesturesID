@@ -2,18 +2,16 @@ package fent.de.tum.in.gesturesid.fragments;
 
 import android.content.Context;
 import android.hardware.Sensor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import fent.de.tum.in.gesturesid.R;
 import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
-import fent.de.tum.in.sensorprocessing.PatternFocusChangeListener;
+import fent.de.tum.in.sensorprocessing.measurement.PatternFocusChangeListener;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
 public class NameInputFragment extends Fragment {

@@ -1,19 +1,11 @@
-package fent.de.tum.in.sensorprocessing;
+package fent.de.tum.in.sensorprocessing.measurement;
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import fent.de.tum.in.sensorprocessing.measurement.SensorDataBuilder;
+import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
 
 /**
  * Implements a OnFocusChangeListener to allow easy measurement of Sensor data from text input
@@ -37,7 +29,6 @@ public class PatternFocusChangeListener extends PatternRecorder implements View.
         if (hasFocus) {
             ((EditText) v).setText(null);
             this.startListening();
-            Log.d("Test", "EditText  got focus");
             return;
         }
 

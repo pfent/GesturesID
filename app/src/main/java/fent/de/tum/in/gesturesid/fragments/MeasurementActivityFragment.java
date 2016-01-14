@@ -12,7 +12,7 @@ import android.widget.EditText;
 
 import fent.de.tum.in.gesturesid.R;
 import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
-import fent.de.tum.in.sensorprocessing.PatternFocusChangeListener;
+import fent.de.tum.in.sensorprocessing.measurement.PatternFocusChangeListener;
 
 /**
  * A placeholder fragment containing a simple view.

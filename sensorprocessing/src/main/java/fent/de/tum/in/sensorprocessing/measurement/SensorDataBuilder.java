@@ -24,7 +24,7 @@ public class SensorDataBuilder {
         timeStamps = new ArrayList<>(initialCapacity);
         timeStamps.add(timestamp);
         for (float data : initialDataVector) {
-            ArrayList<Float> dataRow = new ArrayList<Float>(initialCapacity);
+            ArrayList<Float> dataRow = new ArrayList<>(initialCapacity);
             dataRow.add(data);
             buildupData.add(dataRow);
         }
