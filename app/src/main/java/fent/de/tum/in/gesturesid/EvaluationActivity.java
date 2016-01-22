@@ -8,13 +8,13 @@ import android.util.Log;
 import java.util.List;
 
 import fent.de.tum.in.gesturesid.fragments.LoadingFragment;
+import fent.de.tum.in.sensorprocessing.CachedDBManager;
 import fent.de.tum.in.sensorprocessing.MeasurementManager;
 import fent.de.tum.in.sensorprocessing.featureextraction.FeatureExtractor;
 import fent.de.tum.in.sensorprocessing.featureextraction.FeatureVectors;
 import fent.de.tum.in.sensorprocessing.featureextraction.PeakDetector;
 import fent.de.tum.in.sensorprocessing.featureextraction.PhoneKeystrokeFeatureExtractor;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
-import fent.de.tum.in.sensorprocessing.preprocessing.ComposingPreprocessor;
 import fent.de.tum.in.sensorprocessing.preprocessing.ExponentialSmoother;
 import fent.de.tum.in.sensorprocessing.preprocessing.Normalizer;
 import fent.de.tum.in.sensorprocessing.preprocessing.Preprocessor;
@@ -22,11 +22,20 @@ import fent.de.tum.in.sensorprocessing.preprocessing.Selector;
 
 public class EvaluationActivity extends FragmentActivity {
 
+    private static final Preprocessor selector = new Selector(2),// Z-Axis
+            normalizer = new Normalizer(),
+            smoother = new ExponentialSmoother(0.5f);
+    private static final FeatureExtractor extractor = new PhoneKeystrokeFeatureExtractor();
+    private static final PeakDetector peakDetector = new PeakDetector(67, 1.5f);
+
     private final AsyncTask<Void, Void, Void> computeTask = new AsyncTask<Void, Void, Void>() {
-        MeasurementManager manager = MeasurementManager.getInstance(EvaluationActivity.this);
 
         @Override
         protected Void doInBackground(Void... params) {
+            MeasurementManager manager = MeasurementManager.getInstance(getApplicationContext());
+            CachedDBManager cache = CachedDBManager.getInstance(getApplicationContext());
+            cache.clear();
+
             Log.d("debug", "Started background task");
             List<Long> users = manager.getAllUsers();
 
@@ -35,20 +44,17 @@ public class EvaluationActivity extends FragmentActivity {
                 for (long measurementID : measurements) {
                     Log.d("debug", "Started crunching measurementID " + measurementID);
                     SensorData data = manager.getSensorData(measurementID);
+                    SensorData selectedData = selector.preprocess(data);
+                    SensorData normalizedData = normalizer.preprocess(selectedData);
+                    cache.addNormalizedData(measurementID, normalizedData.data[0]);
 
-                    Preprocessor preprocessor = new ComposingPreprocessor(
-                            new Selector(2), // Z-Axis
-                            new Normalizer(),
-                            new ExponentialSmoother(0.5f)
-                    );
+                    SensorData smoothedData = smoother.preprocess(normalizedData);
+                    cache.addSmoothedData(measurementID, smoothedData.data[0]);
 
-                    final int[] tapLocations = new PeakDetector(67, 1.5f).setTimeSeriesData(data.data[0]).process();
+                    final int[] tapLocations = peakDetector.setTimeSeriesData(smoothedData.data[0]).process();
+                    cache.insertPeaks(measurementID, tapLocations);
 
-                    FeatureExtractor extractor = new PhoneKeystrokeFeatureExtractor();
-                    data = preprocessor.preprocess(data);
-
-
-                    FeatureVectors features = extractor.extractFeatures(data);
+                    FeatureVectors features = extractor.extractFeatures(smoothedData);
 
                 }
             }

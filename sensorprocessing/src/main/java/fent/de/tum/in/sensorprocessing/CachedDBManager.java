@@ -33,12 +33,27 @@ public class CachedDBManager extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS peaks ( measurementID INTEGER, peakNumber INTEGER " +
-                "value INTEGER, PRIMARY KEY (measurementID, peakNumber) );");
-        db.execSQL("CREATE TABLE IF NOT EXISTS normalizedData ( measurementID INTEGER, measurmentPointNumber INTEGER " +
-                "zAxis REAL, PRIMARY KEY (measurementID, measurmentPointNumber) );");
-        db.execSQL("CREATE TABLE IF NOT EXISTS smoothedData ( measurementID INTEGER, measurmentPointNumber INTEGER " +
-                "zAxis REAL, PRIMARY KEY (measurementID, measurmentPointNumber) );");
+        try {
+            db.beginTransaction();
+            db.execSQL("CREATE TABLE IF NOT EXISTS peaks ( " +
+                    "measurementID INTEGER, " +
+                    "peakNumber INTEGER, " +
+                    "value INTEGER, " +
+                    "PRIMARY KEY (measurementID, peakNumber) );");
+            db.execSQL("CREATE TABLE IF NOT EXISTS normalizedData ( " +
+                    "measurementID INTEGER, " +
+                    "measurmentPointNumber INTEGER, " +
+                    "data REAL, " +
+                    "PRIMARY KEY (measurementID, measurmentPointNumber) );");
+            db.execSQL("CREATE TABLE IF NOT EXISTS smoothedData ( " +
+                    "measurementID INTEGER, " +
+                    "measurmentPointNumber INTEGER, " +
+                    "data REAL, " +
+                    "PRIMARY KEY (measurementID, measurmentPointNumber) );");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     @Override
@@ -79,7 +94,7 @@ public class CachedDBManager extends SQLiteOpenHelper {
                 values.clear();
                 values.put("measurementID", measurementID);
                 values.put("measurmentPointNumber", i);
-                values.put("zAxis", data[i]);
+                values.put("data", data[i]);
 
                 db.insert("normalizedData", null, values);
             }
@@ -101,7 +116,7 @@ public class CachedDBManager extends SQLiteOpenHelper {
                 values.clear();
                 values.put("measurementID", measurementID);
                 values.put("measurmentPointNumber", i);
-                values.put("zAxis", data[i]);
+                values.put("data", data[i]);
 
                 db.insert("smoothedData", null, values);
             }
@@ -114,8 +129,8 @@ public class CachedDBManager extends SQLiteOpenHelper {
 
     public void clear() {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS peaks;");
-        db.execSQL("DROP TABLE IF EXISTS normalizedData;");
-        db.execSQL("DROP TABLE IF EXISTS smoothedData;");
+        db.delete("peaks", null, null);
+        db.delete("normalizedData", null, null);
+        db.delete("smoothedData", null, null);
     }
 }
