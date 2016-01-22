@@ -20,7 +20,6 @@ public class PhoneKeystrokeFeatureExtractor implements FeatureExtractor {
     private PeakDetector peakDetector = new PeakDetector(10, 1.5f); //TODO: compare values
 
     public PhoneKeystrokeFeatureExtractor() {
-        //TODO: set the whole time, the sensordata spans
         //TODO: set PeakDetector paramters according to the mean time for a datapoint
     }
 

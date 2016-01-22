@@ -15,8 +15,8 @@ public class Selector implements Preprocessor {
 
     @Override
     public SensorData preprocess(SensorData data) {
-        if (index < data.getDimension()) {
-            throw new IllegalArgumentException();
+        if (index >= data.getDimension()) {
+            throw new IllegalArgumentException(String.format("index %s >= datadimension %s", index, data.getDimension()));
         }
 
         return new SensorData(new float[][]{data.data[index]}, data.timestamps);

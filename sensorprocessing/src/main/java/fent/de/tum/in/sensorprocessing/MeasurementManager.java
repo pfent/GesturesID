@@ -65,7 +65,6 @@ public class MeasurementManager extends SQLiteOpenHelper {
 
     private MeasurementManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        instance = this;
         this.context = context;
     }
 

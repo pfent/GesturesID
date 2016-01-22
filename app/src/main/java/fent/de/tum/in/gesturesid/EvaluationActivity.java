@@ -3,11 +3,16 @@ package fent.de.tum.in.gesturesid;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import java.util.List;
 
 import fent.de.tum.in.gesturesid.fragments.LoadingFragment;
 import fent.de.tum.in.sensorprocessing.MeasurementManager;
+import fent.de.tum.in.sensorprocessing.featureextraction.FeatureExtractor;
+import fent.de.tum.in.sensorprocessing.featureextraction.FeatureVectors;
+import fent.de.tum.in.sensorprocessing.featureextraction.PeakDetector;
+import fent.de.tum.in.sensorprocessing.featureextraction.PhoneKeystrokeFeatureExtractor;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 import fent.de.tum.in.sensorprocessing.preprocessing.ComposingPreprocessor;
 import fent.de.tum.in.sensorprocessing.preprocessing.ExponentialSmoother;
@@ -22,10 +27,13 @@ public class EvaluationActivity extends FragmentActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            Log.d("debug", "Started background task");
             List<Long> users = manager.getAllUsers();
+
             for (long userID : users) {
                 List<Long> measurements = manager.getMeasurementsForUser(userID);
                 for (long measurementID : measurements) {
+                    Log.d("debug", "Started crunching measurementID " + measurementID);
                     SensorData data = manager.getSensorData(measurementID);
 
                     Preprocessor preprocessor = new ComposingPreprocessor(
@@ -34,17 +42,24 @@ public class EvaluationActivity extends FragmentActivity {
                             new ExponentialSmoother(0.5f)
                     );
 
+                    final int[] tapLocations = new PeakDetector(67, 1.5f).setTimeSeriesData(data.data[0]).process();
+
+                    FeatureExtractor extractor = new PhoneKeystrokeFeatureExtractor();
                     data = preprocessor.preprocess(data);
+
+
+                    FeatureVectors features = extractor.extractFeatures(data);
 
                 }
             }
+
 
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+            Log.d("debug", "Finished background task");
         }
     };
 
@@ -60,5 +75,7 @@ public class EvaluationActivity extends FragmentActivity {
                 .beginTransaction()
                 .add(R.id.fragment_container, new LoadingFragment())
                 .commit();
+
+        computeTask.execute();
     }
 }
