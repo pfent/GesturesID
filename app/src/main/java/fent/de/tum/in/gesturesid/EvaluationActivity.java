@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.util.List;
 
+import fent.de.tum.in.gesturesid.fragments.EvaluationFinishedFragment;
 import fent.de.tum.in.gesturesid.fragments.LoadingFragment;
 import fent.de.tum.in.sensorprocessing.CachedDBManager;
 import fent.de.tum.in.sensorprocessing.MeasurementManager;
@@ -30,8 +31,11 @@ public class EvaluationActivity extends FragmentActivity {
 
     private final AsyncTask<Void, Void, Void> computeTask = new AsyncTask<Void, Void, Void>() {
 
+        private long startTime;
+
         @Override
         protected Void doInBackground(Void... params) {
+            startTime = System.currentTimeMillis();
             MeasurementManager manager = MeasurementManager.getInstance(getApplicationContext());
             CachedDBManager cache = CachedDBManager.getInstance(getApplicationContext());
             cache.clear();
@@ -56,13 +60,15 @@ public class EvaluationActivity extends FragmentActivity {
                 }
             }
 
-
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            CachedDBManager cache = CachedDBManager.getInstance(getApplicationContext());
             Log.d("debug", "Finished background task");
+            setComputationFinished(System.currentTimeMillis() - startTime,
+                    cache.getDatabaseName());
         }
     };
 
@@ -76,9 +82,16 @@ public class EvaluationActivity extends FragmentActivity {
         }
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.fragment_container, new LoadingFragment())
+                .add(R.id.fragment_container, LoadingFragment.newInstance())
                 .commit();
 
         computeTask.execute();
+    }
+
+    private void setComputationFinished(long computeTime, String dbLocation) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, EvaluationFinishedFragment.newInstance(computeTime, dbLocation))
+                .commit();
     }
 }

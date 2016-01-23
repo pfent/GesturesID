@@ -14,7 +14,7 @@ public class LoadingFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static LoadingFragment newInstance(String param1, String param2) {
+    public static LoadingFragment newInstance() {
         LoadingFragment fragment = new LoadingFragment();
         return fragment;
     }
