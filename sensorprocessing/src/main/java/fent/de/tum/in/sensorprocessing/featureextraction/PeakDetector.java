@@ -1,6 +1,7 @@
 package fent.de.tum.in.sensorprocessing.featureextraction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ListIterator;
 
 /**
@@ -42,6 +43,37 @@ public class PeakDetector {
         this.stringency = stringency;
     }
 
+    private static float entropy(float[] a, int w) {
+        float sum = 0;
+        for (int i = 0; i < a.length - w; i++) {
+            final float probDens = probabilityDensity(a, i, w);
+            sum += (-probDens * ((float) Math.log(probDens)));
+        }
+        return sum;
+    }
+
+    private static float probabilityDensity(float[] a, int i, int w) {
+        float sum = 0;
+        final float divisor = Math.abs(a[i] - a[i + w]);
+        for (int j = 0; j < a.length; j++) {
+            sum += gaussianKernel((a[i] - a[j]) / divisor);
+        }
+
+        return sum / (a.length * divisor);
+
+    }
+
+    private static float gaussianKernel(float x) {
+        return (float) (Math.exp(-(x * x) / 2) / Math.sqrt(2 * Math.PI));
+    }
+
+    public static float[] concat(float[] a, float[] b) {
+        final float[] c = new float[a.length + b.length];
+        System.arraycopy(a, 0, c, 0, a.length);
+        System.arraycopy(b, 0, c, a.length, b.length);
+        return c;
+    }
+
     public PeakDetector setTimeSeriesData(float[] timeSeriesData) {
         this.T = timeSeriesData;
         return this;
@@ -56,20 +88,7 @@ public class PeakDetector {
     public int[] process() {
 
         // Compute peak function values
-        final float[] S = new float[T.length];
-        for (int i = windowSize; i < S.length - windowSize; i++) {
-            float maxLeft = T[i] - T[i - 1];
-            float maxRight = T[i] - T[i + 1];
-
-            for (int j = 2; j <= windowSize; j++) {
-                if (T[i] - T[i - j] > maxLeft)
-                    maxLeft = T[i] - T[i - j];
-                if (T[i] - T[i + j] > maxRight)
-                    maxRight = T[i] - T[i + j];
-            }
-            S[i] = 0.5f * (maxRight + maxLeft);
-
-        }
+        final float[] S = palshikarS1();
 
         // Compute mean and std of peak function
         float sum = 0;
@@ -121,6 +140,56 @@ public class PeakDetector {
             peakArray[i] = peakLocations.get(i);
         }
         return peakArray;
+    }
+
+    /**
+     * This function implements the "spikiness" function S1 according to Palshikar's paper
+     * S1 is the average of the max/min of it's K left/right nneughbours
+     *
+     * @return the spikiness for each point in T
+     */
+    private float[] palshikarS1() {
+        final float[] s = new float[T.length];
+
+        for (int i = windowSize; i < s.length - windowSize; i++) {
+            float maxLeft = T[i] - T[i - 1];
+            float maxRight = T[i] - T[i + 1];
+
+            for (int j = 2; j <= windowSize; j++) {
+                final float leftCandidate = T[i] - T[i - j];
+                if (leftCandidate > maxLeft) {
+                    maxLeft = leftCandidate;
+                }
+                final float rightCandidate = T[i] - T[i + j];
+                if (rightCandidate > maxRight) {
+                    maxRight = rightCandidate;
+                }
+            }
+            s[i] = 0.5f * (maxRight + maxLeft);
+
+        }
+        return s;
+    }
+
+    /**
+     * This function implements the "spikiness" function S4 according to Palshikar's paper
+     * S4 is the difference in the entropy of the window with and without the individual point
+     *
+     * @return the spikiness for each point in T
+     */
+    private float[] palshikarS4(int w) {
+        final float[] s = new float[T.length];
+
+        for (int i = windowSize; i < s.length - windowSize; i++) {
+            final float[] windowWithoutCurrent = concat(
+                    Arrays.copyOfRange(s, i - windowSize, i),  // Arrays.copyOfRange is EXCLUSIVE end
+                    Arrays.copyOfRange(s, i + 1, i + windowSize + 1));
+            final float[] windowWithCurrent = Arrays.copyOfRange(s, i - windowSize, i + windowSize + 1);
+
+            s[i] = entropy(windowWithoutCurrent, w) - entropy(windowWithCurrent, w);
+        }
+
+        return s;
     }
 }
 
