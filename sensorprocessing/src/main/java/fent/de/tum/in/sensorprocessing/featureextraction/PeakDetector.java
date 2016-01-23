@@ -1,6 +1,7 @@
 package fent.de.tum.in.sensorprocessing.featureextraction;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 /**
  * A standard peak detector in time series.
@@ -22,9 +23,9 @@ import java.util.ArrayList;
  */
 public class PeakDetector {
 
-    private float[] T;
     private final int windowSize;
     private final float stringency;
+    private float[] T;
 
     /**
      * Create a peak detector for the given time series.
@@ -41,7 +42,7 @@ public class PeakDetector {
         this.stringency = stringency;
     }
 
-    public PeakDetector setTimeSeriesData(float[] timeSeriesData){
+    public PeakDetector setTimeSeriesData(float[] timeSeriesData) {
         this.T = timeSeriesData;
         return this;
     }
@@ -55,12 +56,11 @@ public class PeakDetector {
     public int[] process() {
 
         // Compute peak function values
-        float[] S = new float[T.length];
-        float maxLeft, maxRight;
+        final float[] S = new float[T.length];
         for (int i = windowSize; i < S.length - windowSize; i++) {
+            float maxLeft = T[i] - T[i - 1];
+            float maxRight = T[i] - T[i + 1];
 
-            maxLeft = T[i] - T[i - 1];
-            maxRight = T[i] - T[i + 1];
             for (int j = 2; j <= windowSize; j++) {
                 if (T[i] - T[i - j] > maxLeft)
                     maxLeft = T[i] - T[i - j];
@@ -72,45 +72,48 @@ public class PeakDetector {
         }
 
         // Compute mean and std of peak function
-        float mean = 0;
-        int n = 0;
-        float M2 = 0;
-        float delta;
-        for (int i = 0; i < S.length; i++) {
-            n = n + 1;
-            delta = S[i] - mean;
-            mean = mean + delta / n;
-            M2 = M2 + delta * (S[i] - mean);
+        float sum = 0;
+        for (float f : S) {
+            sum += f;
         }
+        final float mean = sum / S.length;
 
-        float variance = M2 / (n - 1);
-        float std = (float) Math.sqrt(variance);
+        sum = 0;
+        for (float f : S) {
+            sum += (mean - f) * (mean - f);
+        }
+        final float std = (float) Math.sqrt(sum / S.length);
 
         // Collect only large peaks
         ArrayList<Integer> peakLocations = new ArrayList<Integer>();
         for (int i = 0; i < S.length; i++) {
-            if (S[i] > 0 && (S[i] - mean) > stringency * std) {
+            if ((S[i] > 0) && (S[i] - mean) > (stringency * std)) {
                 peakLocations.add(i);
             }
         }
 
-        // Remove peaks too close
-        ArrayList<Integer> toPrune = new ArrayList<Integer>();
-        int peak1, peak2, weakerPeak;
-        for (int i = 0; i < peakLocations.size() - 1; i++) {
-            peak1 = peakLocations.get(i);
-            peak2 = peakLocations.get(i + 1);
-
-            if (peak2 - peak1 < windowSize) {
-                // Too close, prune the smallest one
-                if (T[peak2] > T[peak1])
-                    weakerPeak = peak1;
-                else
-                    weakerPeak = peak2;
-                toPrune.add(weakerPeak);
+        // retain only one peak out of any set of peaks within windowsize of each other
+        // so, for every adjacent pair of peaks x1, x2 that lie within the windowsize, remove the
+        // smaller value min(x1, x2)
+        for (ListIterator<Integer> iterator = peakLocations.listIterator(); iterator.hasNext(); ) {
+            if (!iterator.hasPrevious()) { // skip the first item
+                iterator.next();
+                continue;
             }
+            Integer peak1index = peakLocations.get(iterator.previousIndex());
+            Integer peak2index = iterator.next();
+
+            if (peak2index - peak1index < windowSize) { // Too close to each other
+                if (T[peak2index] > T[peak1index]) {
+                    iterator.previous(); // go back to peak2index
+                    iterator.previous(); // go back to peak1index
+                    iterator.remove();   // and remove the smaller peak1index
+                } else {
+                    iterator.remove();
+                }
+            }
+
         }
-        peakLocations.removeAll(toPrune);
 
         // Convert to int[]
         int[] peakArray = new int[peakLocations.size()];

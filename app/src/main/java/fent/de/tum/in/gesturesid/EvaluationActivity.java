@@ -48,13 +48,10 @@ public class EvaluationActivity extends FragmentActivity {
                     SensorData normalizedData = normalizer.preprocess(selectedData);
                     cache.addNormalizedData(measurementID, normalizedData.data[0]);
 
-                    SensorData smoothedData = smoother.preprocess(normalizedData);
-                    cache.addSmoothedData(measurementID, smoothedData.data[0]);
-
-                    final int[] tapLocations = peakDetector.setTimeSeriesData(smoothedData.data[0]).process();
+                    final int[] tapLocations = peakDetector.setTimeSeriesData(normalizedData.data[0]).process();
                     cache.insertPeaks(measurementID, tapLocations);
 
-                    FeatureVectors features = extractor.extractFeatures(smoothedData);
+                    FeatureVectors features = extractor.extractFeatures(normalizedData);
 
                 }
             }
