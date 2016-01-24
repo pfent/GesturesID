@@ -19,22 +19,7 @@ public class MeasurementActivity extends WearableActivity implements OnPatternRe
 
     private PatternRecorder recorder;
     private MeasurementManager manager;
-    private long dummyUserID;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_measurement);
-        setAmbientEnabled();
-
-        mActionPage = (ActionPage) findViewById(R.id.actionpage);
-        mActionPage.setOnClickListener(onClickListener);
-
-        recorder = new PatternRecorder(this, Sensor.TYPE_ACCELEROMETER, this);
-        manager = MeasurementManager.getInstance(this);
-        dummyUserID = manager.createUser("wearDummy");
-    }
-
+    private Long dummyUserID;
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -54,7 +39,23 @@ public class MeasurementActivity extends WearableActivity implements OnPatternRe
     };
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_measurement);
+        setAmbientEnabled();
+
+        mActionPage = (ActionPage) findViewById(R.id.actionpage);
+        mActionPage.setOnClickListener(onClickListener);
+
+        recorder = new PatternRecorder(this, Sensor.TYPE_ACCELEROMETER, this);
+        manager = MeasurementManager.getInstance(this);
+    }
+
+    @Override
     public void OnPatternReceived(SensorData data) {
+        if (dummyUserID == null) {
+            dummyUserID = manager.createUser("wearDummy");
+        }
         long measurementID = manager.createMeasurement(dummyUserID);
         manager.addMeasurementData(measurementID, data.data, data.timestamps);
         manager.copyDbToSdCard();
