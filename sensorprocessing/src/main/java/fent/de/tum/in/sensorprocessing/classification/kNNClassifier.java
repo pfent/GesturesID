@@ -13,7 +13,7 @@ public class kNNClassifier extends Classifier {
     private static final Comparator<Pair<Float, Integer>> pairComparator = new Comparator<Pair<Float, Integer>>() {
         @Override
         public int compare(Pair<Float, Integer> lhs, Pair<Float, Integer> rhs) {
-            return lhs.first.compareTo(rhs.first);
+            return -lhs.first.compareTo(rhs.first); // biggest items should be on top of the heap
         }
     };
     private final int neighbours;
