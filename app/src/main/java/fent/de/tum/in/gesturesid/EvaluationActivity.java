@@ -11,6 +11,9 @@ import fent.de.tum.in.gesturesid.fragments.EvaluationFinishedFragment;
 import fent.de.tum.in.gesturesid.fragments.LoadingFragment;
 import fent.de.tum.in.sensorprocessing.CachedDBManager;
 import fent.de.tum.in.sensorprocessing.MeasurementManager;
+import fent.de.tum.in.sensorprocessing.classification.Classifier;
+import fent.de.tum.in.sensorprocessing.classification.classificationDistances.dTWDistancer;
+import fent.de.tum.in.sensorprocessing.classification.kNNClassifier;
 import fent.de.tum.in.sensorprocessing.featureextraction.FeatureExtractor;
 import fent.de.tum.in.sensorprocessing.featureextraction.FeatureVectors;
 import fent.de.tum.in.sensorprocessing.featureextraction.PeakDetector;
@@ -43,21 +46,41 @@ public class EvaluationActivity extends FragmentActivity {
             Log.d("debug", "Started background task");
             List<Long> users = manager.getAllUsers();
 
-            for (long userID : users) {
-                List<Long> measurements = manager.getMeasurementsForUser(userID);
-                for (long measurementID : measurements) {
+            FeatureVectors[][] categories = new FeatureVectors[users.size()][];
+
+            for (int i = 0; i < users.size(); i++) {
+                List<Long> measurements = manager.getMeasurementsForUser(users.get(i));
+                categories[i] = new FeatureVectors[measurements.size() - 1];
+                for (int j = 0; j < measurements.size() - 1; j++) {
+                    final long measurementID = measurements.get(j);
                     Log.d("debug", "Started crunching measurementID " + measurementID);
                     SensorData data = manager.getSensorData(measurementID);
                     SensorData selectedData = selector.preprocess(data);
                     SensorData normalizedData = normalizer.preprocess(selectedData);
-                    cache.addNormalizedData(measurementID, normalizedData.data[0]);
+                    //cache.addNormalizedData(measurementID, normalizedData.data[0]);
 
-                    final int[] tapLocations = peakDetector.setTimeSeriesData(normalizedData.data[0]).process();
-                    cache.insertPeaks(measurementID, tapLocations);
+                    //final int[] tapLocations = peakDetector.setTimeSeriesData(normalizedData.data[0]).process();
+                    //cache.insertPeaks(measurementID, tapLocations);
 
-                    FeatureVectors features = extractor.extractFeatures(normalizedData);
+                    categories[i][j] = extractor.extractFeatures(normalizedData);
 
                 }
+            }
+
+            Classifier classifier = new kNNClassifier(categories, new dTWDistancer(3), 2);
+
+            for (int i = 0; i < users.size(); i++) {
+                List<Long> measurements = manager.getMeasurementsForUser(users.get(i));
+
+                final long measurementID = measurements.get(measurements.size() - 1);
+                SensorData data = manager.getSensorData(measurementID);
+                SensorData selectedData = selector.preprocess(data);
+                SensorData normalizedData = normalizer.preprocess(selectedData);
+                FeatureVectors featureVectors = extractor.extractFeatures(normalizedData);
+
+                int category = classifier.classify(featureVectors);
+
+                Log.d("debug", String.format("userID: %d, determined category: %d", users.get(i), category));
             }
 
             return null;

@@ -27,6 +27,7 @@ public class FeatureVectorsBuilder {
             for (int i = 0; i < vector.length; i++) {
                 vector[i] = data.get(i);
             }
+            result.add(vector);
         }
 
         return new FeatureVectors(result);

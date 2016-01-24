@@ -18,7 +18,7 @@ public class kNNClassifier extends Classifier {
     };
     private final int neighbours;
 
-    protected kNNClassifier(FeatureVectors[][] categories, ClassificationDistancer distancer, int neighbours) {
+    public kNNClassifier(FeatureVectors[][] categories, ClassificationDistancer distancer, int neighbours) {
         super(categories, distancer);
         this.neighbours = neighbours;
     }

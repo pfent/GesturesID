@@ -16,25 +16,6 @@ public class dTWDistancer implements ClassificationDistancer {
         this.windowSize = windowsSize;
     }
 
-    @Override
-    public float compare(FeatureVectors lhs, FeatureVectors rhs) {
-        float distance = 0;
-        final int size = lhs.data.size();
-        if(windowSize == null) {
-            for(int i = 0; i < size; i++) {
-                final float tmp = dTWDistance(lhs.data.get(i), rhs.data.get(i));
-                distance += tmp * tmp;
-            }
-        } else {
-            for(int i = 0; i < size; i++) {
-                final float tmp = dTWDistance(lhs.data.get(i), rhs.data.get(i), windowSize);
-                distance += tmp * tmp;
-            }
-        }
-
-        return (float) Math.sqrt(distance);
-    }
-
     private static float dTWDistance(float[] first, float[] second) {
         final int dTWMatrixHeight = first.length + 1;
         final int dTWMatrixWidth = second.length + 1;
@@ -85,6 +66,25 @@ public class dTWDistancer implements ClassificationDistancer {
             }
         }
 
-        return dTWMatrix[dTWMatrixHeight][dTWMatrixWidth];
+        return dTWMatrix[dTWMatrixHeight - 1][dTWMatrixWidth - 1];
+    }
+
+    @Override
+    public float compare(FeatureVectors lhs, FeatureVectors rhs) {
+        float distance = 0;
+        final int size = lhs.data.size();
+        if (windowSize == null) {
+            for (int i = 0; i < size; i++) {
+                final float tmp = dTWDistance(lhs.data.get(i), rhs.data.get(i));
+                distance += tmp * tmp;
+            }
+        } else {
+            for (int i = 0; i < size; i++) {
+                final float tmp = dTWDistance(lhs.data.get(i), rhs.data.get(i), windowSize);
+                distance += tmp * tmp;
+            }
+        }
+
+        return (float) Math.sqrt(distance);
     }
 }

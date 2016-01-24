@@ -41,7 +41,6 @@ public class PhoneKeystrokeFeatureExtractor implements FeatureExtractor {
             lastTap = tapLocations[i];
         }
 
-
-        return null;
+        return builder.build();
     }
 }
