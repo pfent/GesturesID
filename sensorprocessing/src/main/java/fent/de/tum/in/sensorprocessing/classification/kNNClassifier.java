@@ -38,7 +38,6 @@ public class kNNClassifier extends Classifier {
                 // add the new comparison
                 heap.add(pair);
 
-                // TODO: right order?
                 // remove the worst vector, so we don't need to keep everything in memory
                 if (heap.size() > neighbours) {
                     heap.poll();
