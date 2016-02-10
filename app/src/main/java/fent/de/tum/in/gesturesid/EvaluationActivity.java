@@ -16,7 +16,6 @@ import fent.de.tum.in.sensorprocessing.classification.classificationDistances.dT
 import fent.de.tum.in.sensorprocessing.classification.kNNClassifier;
 import fent.de.tum.in.sensorprocessing.featureextraction.FeatureExtractor;
 import fent.de.tum.in.sensorprocessing.featureextraction.FeatureVectors;
-import fent.de.tum.in.sensorprocessing.featureextraction.PeakDetector;
 import fent.de.tum.in.sensorprocessing.featureextraction.PhoneKeystrokeFeatureExtractor;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 import fent.de.tum.in.sensorprocessing.preprocessing.Normalizer;
@@ -28,8 +27,6 @@ public class EvaluationActivity extends FragmentActivity {
     private static final Preprocessor selector = new Selector(2),// Z-Axis
             normalizer = new Normalizer();
     private static final FeatureExtractor extractor = new PhoneKeystrokeFeatureExtractor();
-    private static final PeakDetector peakDetector = new PeakDetector(67, 1.5f);
-
     private final AsyncTask<Void, Void, Void> computeTask = new AsyncTask<Void, Void, Void>() {
 
         private long startTime;
@@ -55,30 +52,34 @@ public class EvaluationActivity extends FragmentActivity {
                     SensorData data = manager.getSensorData(measurementID);
                     SensorData selectedData = selector.preprocess(data);
                     SensorData normalizedData = normalizer.preprocess(selectedData);
-                    cache.addNormalizedData(measurementID, normalizedData.data[0]);
-
-                    final int[] tapLocations = peakDetector.setTimeSeriesData(normalizedData.data[0]).process();
-                    cache.insertPeaks(measurementID, tapLocations);
-
                     categories[i][j] = extractor.extractFeatures(normalizedData);
 
                 }
             }
 
-            Classifier classifier = new kNNClassifier(categories, new dTWDistancer(3), 7);
+            for (int k = 1; k <= 10; k++) {
+                Classifier classifier = new kNNClassifier(categories, new dTWDistancer(3), k);
 
-            for (int i = 0; i < users.size(); i++) {
-                List<Long> measurements = manager.getMeasurementsForUser(users.get(i));
+                int detected = 0;
 
-                final long measurementID = measurements.get(measurements.size() - 1);
-                SensorData data = manager.getSensorData(measurementID);
-                SensorData selectedData = selector.preprocess(data);
-                SensorData normalizedData = normalizer.preprocess(selectedData);
-                FeatureVectors featureVectors = extractor.extractFeatures(normalizedData);
+                for (int i = 0; i < users.size(); i++) {
+                    List<Long> measurements = manager.getMeasurementsForUser(users.get(i));
 
-                int category = classifier.classify(featureVectors);
+                    final long measurementID = measurements.get(measurements.size() - 1);
+                    SensorData data = manager.getSensorData(measurementID);
+                    SensorData selectedData = selector.preprocess(data);
+                    SensorData normalizedData = normalizer.preprocess(selectedData);
+                    FeatureVectors featureVectors = extractor.extractFeatures(normalizedData);
 
-                Log.d("debug", String.format("userID: %d, determined category: %d", users.get(i), category + 1));
+                    int category = classifier.classify(featureVectors);
+
+                    if (users.get(i) == category + 1) {
+                        detected++;
+                    }
+
+                }
+                Log.d("debug", String.format("k-NN: %d, detection rate: %f", k, detected / (float) categories.length));
+
             }
 
             return null;
