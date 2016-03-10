@@ -5,17 +5,18 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fent.de.tum.in.gesturesid.MeasurementActivity"
+    tools:context="fent.de.tum.in.gesturesid.UserIdSelectionActivity"
     tools:deviceIds="wear">
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <android.support.wearable.view.ActionPage
-            android:id="@+id/actionpage"
+        android:layout_height="match_parent"
+        app:layout_box="left|bottom|right">
+
+        <android.support.wearable.view.WearableListView
+            android:id="@+id/wearable_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:color="@color/green"
-            android:text="@string/start_measurement" />
-    </RelativeLayout>
+            tools:listitem="@android:layout/simple_list_item_1" />
+    </FrameLayout>
 </android.support.wearable.view.BoxInsetLayout>

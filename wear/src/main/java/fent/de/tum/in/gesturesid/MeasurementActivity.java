@@ -13,13 +13,14 @@ import fent.de.tum.in.sensorprocessing.measurement.PatternRecorder;
 import fent.de.tum.in.sensorprocessing.measurement.SensorData;
 
 public class MeasurementActivity extends WearableActivity implements OnPatternReceivedListener {
+    public static final String USER_ID = "user_id";
 
     private ActionPage mActionPage;
     private boolean isRecording = false;
 
     private PatternRecorder recorder;
     private MeasurementManager manager;
-    private Long dummyUserID;
+    private Long currentUserID;
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -49,14 +50,20 @@ public class MeasurementActivity extends WearableActivity implements OnPatternRe
 
         recorder = new PatternRecorder(this, Sensor.TYPE_ACCELEROMETER, this);
         manager = MeasurementManager.getInstance(this);
+
+        long userID = getIntent().getLongExtra(USER_ID, -1l);
+        if (userID > 0) {
+            currentUserID = userID;
+        }
+
     }
 
     @Override
     public void OnPatternReceived(SensorData data) {
-        if (dummyUserID == null) {
-            dummyUserID = manager.createUser("wearDummy");
+        if (currentUserID == null) {
+            currentUserID = manager.createUser("wearDummy");
         }
-        long measurementID = manager.createMeasurement(dummyUserID);
+        long measurementID = manager.createMeasurement(currentUserID);
         manager.addMeasurementData(measurementID, data.data, data.timestamps);
         manager.copyDbToSdCard();
     }
