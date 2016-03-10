@@ -3,7 +3,6 @@ package fent.de.tum.in.gesturesid;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 import java.util.List;
 
@@ -30,6 +29,7 @@ public class EvaluationActivity extends FragmentActivity {
     private final AsyncTask<Void, Void, Void> computeTask = new AsyncTask<Void, Void, Void>() {
 
         private long startTime;
+        private String result = "";
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -38,7 +38,6 @@ public class EvaluationActivity extends FragmentActivity {
             CachedDBManager cache = CachedDBManager.getInstance(getApplicationContext());
             cache.clear();
 
-            Log.d("debug", "Started background task");
             List<Long> users = manager.getAllUsers();
 
             FeatureVectors[][] categories = new FeatureVectors[users.size()][];
@@ -48,7 +47,6 @@ public class EvaluationActivity extends FragmentActivity {
                 categories[i] = new FeatureVectors[measurements.size() - 1];
                 for (int j = 0; j < measurements.size() - 1; j++) {
                     final long measurementID = measurements.get(j);
-                    Log.d("debug", "Started crunching measurementID " + measurementID);
                     SensorData data = manager.getSensorData(measurementID);
                     SensorData selectedData = selector.preprocess(data);
                     SensorData normalizedData = normalizer.preprocess(selectedData);
@@ -57,31 +55,20 @@ public class EvaluationActivity extends FragmentActivity {
                 }
             }
 
-            for (int k = 1; k <= 10; k++) {
-                Classifier classifier = new kNNClassifier(categories, new dTWDistancer(3), k);
+            Classifier classifier = new kNNClassifier(categories, new dTWDistancer(3), 7);
 
-                int detected = 0;
+            for (int i = 0; i < users.size(); i++) {
+                List<Long> measurements = manager.getMeasurementsForUser(users.get(i));
 
-                for (int i = 0; i < users.size(); i++) {
-                    List<Long> measurements = manager.getMeasurementsForUser(users.get(i));
+                final long measurementID = measurements.get(measurements.size() - 1);
+                SensorData data = manager.getSensorData(measurementID);
+                SensorData selectedData = selector.preprocess(data);
+                SensorData normalizedData = normalizer.preprocess(selectedData);
+                FeatureVectors featureVectors = extractor.extractFeatures(normalizedData);
 
-                    final long measurementID = measurements.get(measurements.size() - 1);
-                    SensorData data = manager.getSensorData(measurementID);
-                    SensorData selectedData = selector.preprocess(data);
-                    SensorData normalizedData = normalizer.preprocess(selectedData);
-                    FeatureVectors featureVectors = extractor.extractFeatures(normalizedData);
+                int category = classifier.classify(featureVectors);
 
-                    int category = classifier.classify(featureVectors);
-
-                    Log.d("debug", String.format("userID: %d, determined category: %d", users.get(i), category + 1));
-
-                    if (users.get(i) == category + 1) {
-                        detected++;
-                    }
-
-                }
-                Log.d("debug", String.format("k-NN: %d, detection rate: %f", k, detected / (float) categories.length));
-
+                result += String.format("user %d was identified as: %d\n", users.get(i), users.get(category));
             }
 
             return null;
@@ -89,10 +76,7 @@ public class EvaluationActivity extends FragmentActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            CachedDBManager cache = CachedDBManager.getInstance(getApplicationContext());
-            Log.d("debug", "Finished background task");
-            setComputationFinished(System.currentTimeMillis() - startTime,
-                    cache.getDatabaseName());
+            setComputationFinished(System.currentTimeMillis() - startTime, result);
         }
     };
 
@@ -112,10 +96,10 @@ public class EvaluationActivity extends FragmentActivity {
         computeTask.execute();
     }
 
-    private void setComputationFinished(long computeTime, String dbLocation) {
+    private void setComputationFinished(long computeTime, String userIdentificationString) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, EvaluationFinishedFragment.newInstance(computeTime, dbLocation))
+                .replace(R.id.fragment_container, EvaluationFinishedFragment.newInstance(computeTime, userIdentificationString))
                 .commit();
     }
 }

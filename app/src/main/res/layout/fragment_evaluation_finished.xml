@@ -8,13 +8,20 @@
     android:paddingTop="55dp"
     tools:context="fent.de.tum.in.gesturesid.fragments.EvaluationFinishedFragment">
 
-    <TextView
-        android:id="@+id/titleView"
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:text="Evaluation of SensorData has finished in\n%d ms.\nThe database with results can be found at:\n%s"
-        android:textSize="36sp" />
+        android:fillViewport="true"
+        android:scrollbars="vertical">
+
+        <TextView
+            android:id="@+id/titleView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:text="@string/evaluationresult"
+            android:textSize="36sp" />
+    </ScrollView>
 
 </FrameLayout>

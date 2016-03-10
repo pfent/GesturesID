@@ -15,18 +15,18 @@ public class EvaluationFinishedFragment extends Fragment {
     private static final String ARG_DB_LOCATION = "dbLocation";
 
     private long computeTime;
-    private String dbLocation;
+    private String userIdentificationString;
 
 
     public EvaluationFinishedFragment() {
         // Required empty public constructor
     }
 
-    public static EvaluationFinishedFragment newInstance(long computeTime, String dbLocation) {
+    public static EvaluationFinishedFragment newInstance(long computeTime, String userIdentificationString) {
         EvaluationFinishedFragment fragment = new EvaluationFinishedFragment();
         Bundle args = new Bundle();
         args.putLong(ARG_COMPUTE_TIME, computeTime);
-        args.putString(ARG_DB_LOCATION, dbLocation);
+        args.putString(ARG_DB_LOCATION, userIdentificationString);
         fragment.setArguments(args);
         return fragment;
     }
@@ -36,7 +36,7 @@ public class EvaluationFinishedFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             computeTime = getArguments().getLong(ARG_COMPUTE_TIME);
-            dbLocation = getArguments().getString(ARG_DB_LOCATION);
+            userIdentificationString = getArguments().getString(ARG_DB_LOCATION);
         }
     }
 
@@ -47,7 +47,7 @@ public class EvaluationFinishedFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_evaluation_finished, container, false);
         TextView textView = (TextView) view.findViewById(R.id.titleView);
 
-        String text = String.format(textView.getText().toString(), computeTime, dbLocation);
+        String text = String.format(getString(R.string.evaluationresult), computeTime, userIdentificationString);
         textView.setText(text);
 
         return view;
