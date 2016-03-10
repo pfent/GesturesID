@@ -5,23 +5,18 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import fent.de.tum.in.sensorprocessing.OnPatternReceivedListener;
-import fent.de.tum.in.sensorprocessing.measurement.SensorDataBuilder;
 
 /**
  * Created by philipp on 16.12.15.
  */
 public class PatternRecorder {
 
-    private SensorDataBuilder builder;
     private final SensorManager manager;
     private final Sensor sensor;
     private final OnPatternReceivedListener callback;
+    private SensorDataBuilder builder;
     private final SensorEventListener listener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
@@ -63,6 +58,10 @@ public class PatternRecorder {
     public void stopListening() {
         manager.unregisterListener(listener);
         callback.OnPatternReceived(builder.toSensorData());
+    }
+
+    public void clear() {
+        builder.clear();
     }
 
 }

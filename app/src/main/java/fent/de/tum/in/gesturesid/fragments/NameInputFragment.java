@@ -19,6 +19,12 @@ public class NameInputFragment extends Fragment {
     private OnNameInputListener nameListener;
     private OnPatternReceivedListener patternListener;
     private TextView nameField;
+    private OnPatternReceivedListener wrapper = new OnPatternReceivedListener() {
+        @Override
+        public void OnPatternReceived(SensorData data) {
+            nameListener.onNameInput(nameField.getText().toString());
+        }
+    };
 
     public static NameInputFragment newInstance() {
         return new NameInputFragment();
@@ -70,12 +76,4 @@ public class NameInputFragment extends Fragment {
     public interface OnNameInputListener {
         void onNameInput(String name);
     }
-
-    private OnPatternReceivedListener wrapper = new OnPatternReceivedListener() {
-        @Override
-        public void OnPatternReceived(SensorData data) {
-            nameListener.onNameInput(nameField.getText().toString());
-            patternListener.OnPatternReceived(data);
-        }
-    };
 }
