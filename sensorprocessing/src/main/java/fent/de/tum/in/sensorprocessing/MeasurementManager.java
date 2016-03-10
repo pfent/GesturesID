@@ -214,7 +214,9 @@ public class MeasurementManager extends SQLiteOpenHelper {
     public List<Long> getAllUsers() {
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor c = db.query(true, TABLE_USERS, new String[]{USERS_ID}, null, null, null, null, null, null);
+        Cursor c = db.rawQuery("SELECT DISTINCT u.userID" +
+                " FROM users u" +
+                " JOIN measurements m ON u.userID = m.userID", null);
 
         List<Long> result = new ArrayList<>(c.getCount());
         for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {

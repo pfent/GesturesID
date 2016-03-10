@@ -3,7 +3,6 @@ package fent.de.tum.in.gesturesid;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -32,6 +31,7 @@ public class WearEvaluationActivity extends Activity {
     private final AsyncTask<Void, Void, Void> computeTask = new AsyncTask<Void, Void, Void>() {
 
         private long startTime;
+        private String result = "";
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -40,7 +40,6 @@ public class WearEvaluationActivity extends Activity {
             CachedDBManager cache = CachedDBManager.getInstance(getApplicationContext());
             cache.clear();
 
-            Log.d("debug", "Started background task");
             List<Long> users = manager.getAllUsers();
 
             FeatureVectors[][] categories = new FeatureVectors[users.size()][];
@@ -51,7 +50,6 @@ public class WearEvaluationActivity extends Activity {
                 categories[i] = new FeatureVectors[measurements.size() - 1];
                 for (int j = 0; j < measurements.size() - 1; j++) {
                     final long measurementID = measurements.get(j);
-                    Log.d("debug", "Started crunching measurementID " + measurementID);
                     SensorData data = manager.getSensorData(measurementID);
                     SensorData selectedData = selector.preprocess(data);
                     SensorData normalizedData = normalizer.preprocess(selectedData);
@@ -78,7 +76,7 @@ public class WearEvaluationActivity extends Activity {
 
                 int category = classifier.classify(featureVectors);
 
-                Log.d("debug", String.format("userID: %d, determined category: %d", users.get(i), category + 1));
+                result += String.format("user %d was identified as: %d\n", users.get(i), users.get(category));
             }
 
             return null;
@@ -86,10 +84,7 @@ public class WearEvaluationActivity extends Activity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            CachedDBManager cache = CachedDBManager.getInstance(getApplicationContext());
-            Log.d("debug", "Finished background task");
-            setComputationFinished(System.currentTimeMillis() - startTime,
-                    cache.getDatabaseName());
+            setComputationFinished(System.currentTimeMillis() - startTime, result);
         }
     };
     private TextView mTextView;
@@ -101,10 +96,10 @@ public class WearEvaluationActivity extends Activity {
         computeTask.execute();
     }
 
-    private void setComputationFinished(long computeTime, String dbLocation) {
+    private void setComputationFinished(long computeTime, String userIdentificationString) {
         findViewById(R.id.spinner).setVisibility(View.GONE);
         TextView textview = (TextView) findViewById(R.id.hint);
-        textview.setText(String.format(textview.getText().toString(), computeTime, dbLocation));
+        textview.setText(String.format(getString(R.string.evaluationresult), computeTime, userIdentificationString));
         textview.setVisibility(View.VISIBLE);
     }
 }

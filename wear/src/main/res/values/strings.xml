@@ -3,4 +3,5 @@
     <string name="start_measurement">Start measurement</string>
     <string name="stop_measurement">Stop measurement</string>
     <string name="title_activity_evaluation">EvaluationActivity</string>
+    <string name="evaluationresult">Finished in\n%1$d ms.\n%2$s</string>
 </resources>

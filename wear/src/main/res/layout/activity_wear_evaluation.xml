@@ -22,7 +22,7 @@
             android:id="@+id/hint"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Evaluation of SensorData has finished in\n%d ms.\nThe database with results can be found at:\n%s"
+            android:text="@string/evaluationresult"
             android:visibility="gone" />
     </RelativeLayout>
 </android.support.wearable.view.BoxInsetLayout>
