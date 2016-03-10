@@ -73,6 +73,8 @@ public class EvaluationActivity extends FragmentActivity {
 
                     int category = classifier.classify(featureVectors);
 
+                    Log.d("debug", String.format("userID: %d, determined category: %d", users.get(i), category + 1));
+
                     if (users.get(i) == category + 1) {
                         detected++;
                     }
